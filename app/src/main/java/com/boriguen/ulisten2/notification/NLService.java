@@ -35,7 +35,7 @@ public class NLService extends NotificationListenerService {
             @Override
             public void onInit(int status) {
                 tts.setLanguage(Locale.getDefault());
-                tts.setSpeechRate(1.33f);
+                tts.setSpeechRate(1f);
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
