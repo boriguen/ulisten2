@@ -7,6 +7,8 @@ public class NotificationData {
 
     private static final String TAG = "NotificationData";
 
+    public String packageName;
+    public long postTime;
     public CharSequence titleBigText;
     public CharSequence titleText;
     public CharSequence messageText;

@@ -28,7 +28,7 @@
         </activity>
 
         <service
-            android:name="com.boriguen.ulisten2.notification.NLService"
+            android:name="com.boriguen.ulisten2.service.NLService"
             android:label="@string/service_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
 

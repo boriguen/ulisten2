@@ -93,7 +93,7 @@ public final class Extractor {
         }
     }
 
-    public NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
+    private NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
         final Bundle extras = getExtras(statusBarNotification);
 
         if (extras != null) loadFromExtras(data, extras);
@@ -106,11 +106,19 @@ public final class Extractor {
         return data;
     }
 
+    public NotificationData load(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
+        data.packageName = statusBarNotification.getPackageName();
+        data.postTime = statusBarNotification.getPostTime();
+        loadTexts(context, statusBarNotification, data);
+
+        return data;
+    }
+
     //-- LOADING FROM EXTRAS --------------------------------------------------
 
     /**
      * Loads all possible texts from given {@link Notification#extras extras} to
-     * {@link com.boriguen.ulisten2.notification.NotificationData}.
+     * {@link NotificationData}.
      *
      * @param extras extras to load from
      */

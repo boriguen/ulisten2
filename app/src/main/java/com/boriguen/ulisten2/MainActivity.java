@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boriguen.android.ulisten2.R;
-import com.boriguen.ulisten2.notification.NLService;
+import com.boriguen.ulisten2.service.NLService;
 
 public class MainActivity extends Activity {
 

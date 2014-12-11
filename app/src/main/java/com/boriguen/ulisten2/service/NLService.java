@@ -1,4 +1,4 @@
-package com.boriguen.ulisten2.notification;
+package com.boriguen.ulisten2.service;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,9 @@ import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+
+import com.boriguen.ulisten2.notification.NotificationData;
+import com.boriguen.ulisten2.notification.Extractor;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -73,7 +76,7 @@ public class NLService extends NotificationListenerService {
 
         // Extract text info
         Extractor extractor = new Extractor();
-        NotificationData notificationData = extractor.loadTexts(getApplicationContext(), sbn, new NotificationData());
+        NotificationData notificationData = extractor.load(getApplicationContext(), sbn, new NotificationData());
 
         // Format notification info
         String notifInBrief = String.format("{id: %d, time: %d, package: %s, Big title: %s, title: %s, " +
@@ -84,7 +87,7 @@ public class NLService extends NotificationListenerService {
         Log.i(TAG, notifInBrief);
 
         // Prepare speech
-        String[] songInfoSplit = notificationData.messageText.toString().split("\n"); // [0]: album, [1]: song
+        String[] songInfoSplit = notificationData.messageText.toString().split("\n"); // [0]: album, [1]: artist
         String newSpeech = String.format("You listen to %s by %s", notificationData.titleText, songInfoSplit[1]);
         speeches.add(newSpeech);
 
