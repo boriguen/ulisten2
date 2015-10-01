@@ -1,5 +1,6 @@
 package com.boriguen.ulisten2.media;
 
+import com.boriguen.ulisten2.media.impl.PandoraMedia;
 import com.boriguen.ulisten2.notification.NotificationData;
 
 /**
@@ -12,7 +13,13 @@ public class MediaFactory {
     }
 
     public static IMedia createMedia(NotificationData notificationData) {
-        return null;
+        IMedia media = null;
+
+        if (notificationData.packageName.equals(MediaApp.PANDORA.toString())) {
+            media = new PandoraMedia(notificationData);
+        }
+
+        return media;
     }
 
 }

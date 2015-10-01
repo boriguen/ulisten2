@@ -8,13 +8,9 @@ import com.boriguen.ulisten2.notification.NotificationData;
 public abstract class AbstractMedia implements IMedia {
 
     protected NotificationData notificationData = null;
-    protected String title = null;
-    protected String album = null;
-    protected String artist = null;
-
-    protected AbstractMedia() {
-
-    }
+    protected CharSequence title = null;
+    protected CharSequence album = null;
+    protected CharSequence artist = null;
 
     public AbstractMedia(NotificationData notificationData) {
         this.notificationData = notificationData;
@@ -23,22 +19,20 @@ public abstract class AbstractMedia implements IMedia {
         this.artist = fetchArtist(notificationData);
     }
 
-    protected abstract String fetchTitle(NotificationData notificationData);
-
-    protected abstract String fetchAlbum(NotificationData notificationData);
-
-    protected abstract String fetchArtist(NotificationData notificationData);
+    public boolean isRelevant() {
+        return getTitle() != null && getArtist() != null;
+    }
 
     public String getTitle() {
-        return title;
+        return title != null ? title.toString() : null;
     }
 
     public String getAlbum() {
-        return album;
+        return album != null ? album.toString() : null;
     }
 
     public String getArtist() {
-        return artist;
+        return artist != null ? artist.toString() : null;
     }
 
     @Override
@@ -50,5 +44,11 @@ public abstract class AbstractMedia implements IMedia {
     public String getPackageName() {
         return notificationData.packageName;
     }
+
+    protected abstract CharSequence fetchTitle(NotificationData notificationData);
+
+    protected abstract CharSequence fetchAlbum(NotificationData notificationData);
+
+    protected abstract CharSequence fetchArtist(NotificationData notificationData);
 
 }

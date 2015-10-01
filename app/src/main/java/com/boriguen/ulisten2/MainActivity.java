@@ -35,8 +35,9 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
 		unregisterReceiver(nReceiver);
+		stopService(new Intent(MainActivity.this, NLService.class));
+		super.onDestroy();
 	}
 
 	public void buttonClicked(View v) {

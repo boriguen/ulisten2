@@ -15,4 +15,6 @@ public interface IMedia {
 
     String getPackageName();
 
+    boolean isRelevant();
+
 }

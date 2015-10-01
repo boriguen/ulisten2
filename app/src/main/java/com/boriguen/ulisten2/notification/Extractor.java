@@ -96,12 +96,18 @@ public final class Extractor {
     private NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
         final Bundle extras = getExtras(statusBarNotification);
 
-        if (extras != null) loadFromExtras(data, extras);
+        if (extras != null) {
+            loadFromExtras(data, extras);
+            Log.d(TAG, "Ended loading from extras.");
+        }
         if (TextUtils.isEmpty(data.titleText)
                 && TextUtils.isEmpty(data.titleBigText)
                 && TextUtils.isEmpty(data.messageText)
                 && data.messageTextLines == null) {
+            Log.d(TAG, "Starting loading from view.");
             loadFromView(data, context, statusBarNotification);
+            Log.d(TAG, "Ended loading from view.");
+
         }
         return data;
     }
@@ -164,7 +170,9 @@ public final class Extractor {
             LayoutInflater inflater = (LayoutInflater) contextNotify.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = (ViewGroup) inflater.inflate(rvs.getLayoutId(), null);
             rvs.reapply(contextNotify, view);
+            Log.d(TAG, "View loaded from remote views.");
         } catch (Exception e) {
+            Log.e(TAG, e.toString());
             return;
         }
 
@@ -176,6 +184,7 @@ public final class Extractor {
         // There're no views present.
         if (textViews.size() == 0)
             return;
+        Log.d(TAG, "Views present after filtering 1.");
 
         TextView title = findTitleTextView(textViews);
         textViews.remove(title); // no need of title view anymore
@@ -184,6 +193,7 @@ public final class Extractor {
         // There're no views present.
         if (textViews.size() == 0)
             return;
+        Log.d(TAG, "Views present after filtering 2.");
 
         int length = textViews.size();
         CharSequence[] messages = new CharSequence[length];
