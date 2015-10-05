@@ -26,7 +26,7 @@ public class NLService extends NotificationListenerService {
 
     private String TAG = this.getClass().getSimpleName();
 
-    public static final long ASAP = 2000; // 2 seconds for better clarity.
+    public static final long ASAP = 3000; // 3 seconds for better clarity.
     public static final long INTERVAL = 60000; // Every 1 minute.
 
     AudioManager am = null;
@@ -120,8 +120,6 @@ public class NLService extends NotificationListenerService {
 
                 // Launch the play media timer.
                 playMediaAsync();
-            } else {
-                //cancelPlayMedia();
             }
         }
     }
@@ -131,7 +129,7 @@ public class NLService extends NotificationListenerService {
             @Override
             public void onInit(int status) {
                 tts.setLanguage(Locale.getDefault());
-                tts.setSpeechRate(1f);
+                tts.setSpeechRate(1.5f);
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
