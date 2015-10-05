@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/pref_play_media_cat"
+        android:key="pref_play_media">
+
+        <EditTextPreference
+            android:key="pref_play_media_delay"
+            android:persistent="true"
+            android:title="@string/pref_play_media_delay"
+            android:defaultValue="3"/>
+
+        <EditTextPreference
+            android:key="pref_play_media_interval"
+            android:persistent="true"
+            android:title="@string/pref_play_media_interval"
+            android:defaultValue="30"/>
+
+        <ListPreference
+            android:key="pref_play_media_speed"
+            android:persistent="true"
+            android:title="@string/pref_play_media_speed"
+            android:dialogTitle="@string/pref_play_media_speed"
+            android:entries="@array/pref_playSpeed_entries"
+            android:entryValues="@array/pref_playSpeed_values"
+            android:defaultValue="1"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

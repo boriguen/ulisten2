@@ -1,6 +1,7 @@
 package com.boriguen.ulisten2.service;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -13,6 +14,7 @@ import com.boriguen.ulisten2.media.MediaApp;
 import com.boriguen.ulisten2.media.MediaFactory;
 import com.boriguen.ulisten2.notification.Extractor;
 import com.boriguen.ulisten2.notification.NotificationData;
+import com.boriguen.ulisten2.prefs.SettingsManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,12 +24,9 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class NLService extends NotificationListenerService {
+public class NLService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private String TAG = this.getClass().getSimpleName();
-
-    public static final long ASAP = 3000; // 3 seconds for better clarity.
-    public static final long INTERVAL = 60000; // Every 1 minute.
 
     AudioManager am = null;
 
@@ -39,6 +38,8 @@ public class NLService extends NotificationListenerService {
     List<String> speeches = null;
 
     IMedia currentMedia = null;
+
+    SettingsManager settingsManager = null;
 
     @Override
     public void onCreate() {
@@ -54,6 +55,12 @@ public class NLService extends NotificationListenerService {
         // Init speeches list.
         speeches = new LinkedList<String>();
 
+        // Instantiate the settings manager.
+        settingsManager = new SettingsManager(getApplicationContext());
+
+        // Register this service to listen to preference changes.
+        settingsManager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+
         super.onCreate();
     }
 
@@ -67,6 +74,9 @@ public class NLService extends NotificationListenerService {
         // Clear timer.
         cancelPlayMedia();
         timer.cancel();
+
+        // Unregister this service from listening to preference changes.
+        settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -129,7 +139,7 @@ public class NLService extends NotificationListenerService {
             @Override
             public void onInit(int status) {
                 tts.setLanguage(Locale.getDefault());
-                tts.setSpeechRate(1.5f);
+                tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
@@ -154,7 +164,8 @@ public class NLService extends NotificationListenerService {
     private void playMediaAsync() {
         cancelPlayMedia();
         task = createTask();
-        timer.scheduleAtFixedRate(task, ASAP, INTERVAL);
+        timer.scheduleAtFixedRate(task, settingsManager.getPlayMediaDelayInMilliseconds(),
+                settingsManager.getPlayMediaIntervalInMilliseconds());
     }
 
     private TimerTask createTask() {
@@ -206,4 +217,13 @@ public class NLService extends NotificationListenerService {
         }
     };
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(SettingsManager.PLAY_MEDIA_DELAY) || key.equals(SettingsManager.PLAY_MEDIA_INTERVAL)) {
+            cancelPlayMedia();
+            playMediaAsync();
+        } else if (key.equals(SettingsManager.PLAY_MEDIA_SPEED)) {
+            tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
+        }
+    }
 }

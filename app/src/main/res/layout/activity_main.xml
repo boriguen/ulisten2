@@ -8,27 +8,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <ScrollView
+    <GridLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignLeft="@+id/btnListNotify"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/btnListNotify"
-        android:layout_below="@+id/btnListNotify" >
+        android:columnCount="1"
+        android:rowCount="2">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
+        <Switch
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </ScrollView>
+            android:text="Play Media Info"
+            android:id="@+id/switch1"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:checked="true" />
 
-    <Button
-        android:id="@+id/btnListNotify"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="buttonClicked"
-        android:text="Incoming Notifications" />
-
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listView"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/switch1"
+            android:choiceMode="none"
+            android:scrollingCache="true"
+            android:smoothScrollbar="true"
+            android:footerDividersEnabled="false"
+            android:fastScrollEnabled="true"
+            android:fastScrollAlwaysVisible="true" />
+    </GridLayout>
 </RelativeLayout>
