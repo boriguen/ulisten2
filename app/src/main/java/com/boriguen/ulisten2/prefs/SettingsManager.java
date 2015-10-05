@@ -12,6 +12,7 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
     public static final String PLAY_MEDIA_DELAY = "pref_play_media_delay";
     public static final String PLAY_MEDIA_INTERVAL = "pref_play_media_interval";
     public static final String PLAY_MEDIA_SPEED = "pref_play_media_speed";
+    public static final String PLAY_SERVICE_ENABLED = "pref_play_service_enabled";
 
     SharedPreferences sharedPreferences = null;
     int delay = -1;
@@ -48,6 +49,16 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
             speed = Float.parseFloat(sharedPreferences.getString(PLAY_MEDIA_SPEED, "1"));
         }
         return speed;
+    }
+
+    public boolean getPlayServiceEnabled() {
+        return sharedPreferences.getBoolean(PLAY_SERVICE_ENABLED, true);
+    }
+
+    public void setPlayServiceEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(PLAY_SERVICE_ENABLED, enabled);
+        editor.commit();
     }
 
     @Override

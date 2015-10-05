@@ -18,18 +18,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Play Media Info"
-            android:id="@+id/switch1"
+            android:id="@+id/switch_service_state"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:checked="true" />
+            android:checked="false"
+            android:enabled="true" />
 
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/listView"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/switch1"
+            android:layout_below="@+id/switch_service_state"
             android:choiceMode="none"
             android:scrollingCache="true"
             android:smoothScrollbar="true"

@@ -1,8 +1,10 @@
 package com.boriguen.ulisten2.service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
@@ -25,6 +27,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class NLService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
+
+    public static boolean isNotificationAccessEnabled = false;
 
     private String TAG = this.getClass().getSimpleName();
 
@@ -68,15 +72,35 @@ public class NLService extends NotificationListenerService implements SharedPref
     public void onDestroy() {
         super.onDestroy();
 
+        // Clear audio.
+        am = null;
+        afChangeListener = null;
+
         // Clear TTS.
         tts.shutdown();
+        tts = null;
 
         // Clear timer.
         cancelPlayMedia();
         timer.cancel();
+        timer = null;
 
         // Unregister this service from listening to preference changes.
         settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public IBinder onBind(Intent mIntent) {
+        IBinder mIBinder = super.onBind(mIntent);
+        isNotificationAccessEnabled = true;
+        return mIBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent mIntent) {
+        boolean mOnUnbind = super.onUnbind(mIntent);
+        isNotificationAccessEnabled = false;
+        return mOnUnbind;
     }
 
     @Override
