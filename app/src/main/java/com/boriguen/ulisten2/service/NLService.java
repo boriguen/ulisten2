@@ -2,7 +2,6 @@ package com.boriguen.ulisten2.service;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.os.Handler;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
@@ -25,17 +24,17 @@ import java.util.TimerTask;
 
 public class NLService extends NotificationListenerService {
 
-    public static final long ASAP = 0;
-
-    public static final long INTERVAL = 60000; // Every 1 minute.
-
     private String TAG = this.getClass().getSimpleName();
+
+    public static final long ASAP = 2000; // 2 seconds for better clarity.
+    public static final long INTERVAL = 60000; // Every 1 minute.
 
     AudioManager am = null;
 
     TextToSpeech tts = null;
 
     Timer timer = null;
+    TimerTask task = null;
 
     List<String> speeches = null;
 
@@ -43,18 +42,17 @@ public class NLService extends NotificationListenerService {
 
     @Override
     public void onCreate() {
-
         // Init audio manager.
         am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
         // Init tts.
         tts = getTts();
 
+        // Init timer.
+        timer = new Timer();
+
         // Init speeches list.
         speeches = new LinkedList<String>();
-
-        // Start playing media info asynchronous.
-        playMediaAsync();
 
         super.onCreate();
     }
@@ -62,7 +60,12 @@ public class NLService extends NotificationListenerService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // Clear TTS.
         tts.shutdown();
+
+        // Clear timer.
+        cancelPlayMedia();
         timer.cancel();
     }
 
@@ -77,11 +80,26 @@ public class NLService extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         Log.i(TAG, "**********  onNotificationRemoved");
+
+        if (isPackageRelevant(sbn)) {
+            cancelPlayMedia();
+        }
+    }
+
+    private void cancelPlayMedia() {
+        // Cancel previous task if applicable.
+        if (task != null) {
+            task.cancel();
+            timer.purge();
+        }
+    }
+
+    private boolean isPackageRelevant(StatusBarNotification sbn) {
+        return Arrays.toString(MediaApp.values()).contains(sbn.getPackageName());
     }
 
     private void processStatusBarNotification(StatusBarNotification sbn) {
-        if (Arrays.toString(MediaApp.values()).contains(sbn.getPackageName())) {
-
+        if (isPackageRelevant(sbn)) {
             // Extract text info.
             Extractor extractor = new Extractor();
             NotificationData notificationData = extractor.load(getApplicationContext(), sbn, new NotificationData());
@@ -96,9 +114,14 @@ public class NLService extends NotificationListenerService {
 
             // Generate related media.
             IMedia media = MediaFactory.createMedia(notificationData);
-            if (media != null && media.isRelevant()) {
+            if (media != null && media.isRelevant() && !media.equals(currentMedia)) {
                 // Update current media.
                 currentMedia = media;
+
+                // Launch the play media timer.
+                playMediaAsync();
+            } else {
+                //cancelPlayMedia();
             }
         }
     }
@@ -107,47 +130,46 @@ public class NLService extends NotificationListenerService {
         return new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-            tts.setLanguage(Locale.getDefault());
-            tts.setSpeechRate(1f);
-            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override
-                public void onStart(String utteranceId) {
+                tts.setLanguage(Locale.getDefault());
+                tts.setSpeechRate(1f);
+                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onStart(String utteranceId) {
 
-                }
+                    }
 
-                @Override
-                public void onDone(String utteranceId) {
-                    // Abandon focus.
-                    am.abandonAudioFocus(afChangeListener);
-                }
+                    @Override
+                    public void onDone(String utteranceId) {
+                        // Abandon focus.
+                        am.abandonAudioFocus(afChangeListener);
+                    }
 
-                @Override
-                public void onError(String utteranceId) {
+                    @Override
+                    public void onError(String utteranceId) {
 
-                }
-            });
+                    }
+                });
             }
         });
     }
 
     private void playMediaAsync() {
-        final Handler handler = new Handler();
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        cancelPlayMedia();
+        task = createTask();
+        timer.scheduleAtFixedRate(task, ASAP, INTERVAL);
+    }
+
+    private TimerTask createTask() {
+        return new TimerTask() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    @SuppressWarnings("unchecked")
-                    public void run() {
-                        try {
-                            playMedia();
-                        } catch (Exception e) {
-                            Log.e(TAG, e.toString());
-                        }
-                    }
-                });
+                try {
+                    playMedia();
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                }
             }
-        }, ASAP, INTERVAL);
+        };
     }
 
     private void playMedia() {
@@ -171,6 +193,7 @@ public class NLService extends NotificationListenerService {
                 tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, map);
             }
         }
+
     }
 
     AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
@@ -182,6 +205,7 @@ public class NLService extends NotificationListenerService {
             } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
 
             }
-    }
-};
+        }
+    };
+
 }
