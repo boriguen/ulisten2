@@ -70,6 +70,7 @@ public class NLService extends NotificationListenerService implements SharedPref
         timer = new Timer();
 
         // Check for active notifications after a few seconds delay to have the listener ready.
+        // This could be replaced by onListenerConnected when using API 21.
         timer.schedule(createProcessActiveNotificationsTask(),
                 DELAY_BEFORE_CHECKING_ACTIVE_NOTIFICATIONS);
 
