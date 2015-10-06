@@ -1,11 +1,8 @@
 package com.boriguen.ulisten2;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
@@ -18,7 +15,8 @@ import com.boriguen.ulisten2.service.NLService;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener {
 
-    private static final int RESULT_SETTINGS = 0;
+    private static final int REQUEST_SETTINGS = 0;
+    private static final int REQUEST_NOTIFICATION_ACCESS = 1;
 
     SettingsManager settingsManager = null;
 
@@ -35,18 +33,12 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
         // Initialize service state switch component.
         serviceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
+        serviceStateSwitch.setChecked(NLService.isNotificationAccessEnabled);
         serviceStateSwitch.setOnCheckedChangeListener(this);
-        serviceStateSwitch.setChecked(settingsManager.getPlayServiceEnabled());
-
-        // Check notification access and act accordingly.
-        //performNotificationAccessSteps();
-
-        updateServiceState(serviceStateSwitch.isChecked());
     }
 
     @Override
     protected void onDestroy() {
-        updateServiceState(false);
         super.onDestroy();
     }
 
@@ -61,7 +53,7 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent i = new Intent(this, SettingsActivity.class);
-                startActivityForResult(i, RESULT_SETTINGS);
+                startActivityForResult(i, REQUEST_SETTINGS);
                 break;
         }
 
@@ -70,9 +62,10 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        settingsManager.setPlayServiceEnabled(isChecked);
-        startActivityForResult(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"), 0);
-        updateServiceState(isChecked);
+        if (!isChecked && NLService.isNotificationAccessEnabled ||
+                isChecked && !NLService.isNotificationAccessEnabled) {
+            startActivityForResult(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"), REQUEST_NOTIFICATION_ACCESS);
+        }
     }
 
     private void updateServiceState(boolean enabled) {
@@ -83,17 +76,13 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         }
     }
 
-    private void performNotificationAccessSteps() {
-        Context context = getApplicationContext();
-        ContentResolver contentResolver = context.getContentResolver();
-        String enabledNotificationListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
-        String packageName = context.getPackageName();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        // Check to see if the enabledNotificationListeners String contains our package name.
-        if (enabledNotificationListeners == null || !enabledNotificationListeners.contains(packageName)) {
-            serviceStateSwitch.setChecked(true);
-
+        if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
+            serviceStateSwitch.setChecked(NLService.isNotificationAccessEnabled);
+            //updateServiceState(NLService.isNotificationAccessEnabled);
         }
-    }
 
+    }
 }

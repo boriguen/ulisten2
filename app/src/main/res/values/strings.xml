@@ -3,12 +3,11 @@
 
     <string name="app_name">UListen2</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="service_name">Music Notif Listener</string>
+    <string name="service_name">UListen2</string>
 
-    <string name="pref_play_media_cat">Play Media Info Settings</string>
-    <string name="pref_play_media_delay">With Delay of X seconds</string>
-    <string name="pref_play_media_interval">Every Y seconds</string>
-    <string name="pref_play_media_speed">At Speed Z</string>
+    <string name="pref_play_media_cat">Play Media Info</string>
+    <string name="pref_play_media_delay">Delayed of (in seconds)</string>
+    <string name="pref_play_media_interval">Every (in seconds)</string>
+    <string name="pref_play_media_speed">At Speed</string>
 
 </resources>

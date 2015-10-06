@@ -30,7 +30,9 @@ public class NLService extends NotificationListenerService implements SharedPref
 
     public static boolean isNotificationAccessEnabled = false;
 
-    private String TAG = this.getClass().getSimpleName();
+    private static final int DELAY_BEFORE_CHECKING_ACTIVE_NOTIFICATIONS = 3000;
+
+    private static final String TAG = "NLService";
 
     AudioManager am = null;
 
@@ -47,14 +49,13 @@ public class NLService extends NotificationListenerService implements SharedPref
 
     @Override
     public void onCreate() {
+        super.onCreate();
+
         // Init audio manager.
         am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
         // Init tts.
         tts = getTts();
-
-        // Init timer.
-        timer = new Timer();
 
         // Init speeches list.
         speeches = new LinkedList<String>();
@@ -65,7 +66,15 @@ public class NLService extends NotificationListenerService implements SharedPref
         // Register this service to listen to preference changes.
         settingsManager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-        super.onCreate();
+        // Init timer.
+        timer = new Timer();
+
+        // Check for active notifications after a few seconds delay to have the listener ready.
+        timer.schedule(createProcessActiveNotificationsTask(),
+                DELAY_BEFORE_CHECKING_ACTIVE_NOTIFICATIONS);
+
+        // Play media.
+        playMediaAsync();
     }
 
     @Override
@@ -91,16 +100,14 @@ public class NLService extends NotificationListenerService implements SharedPref
 
     @Override
     public IBinder onBind(Intent mIntent) {
-        IBinder mIBinder = super.onBind(mIntent);
         isNotificationAccessEnabled = true;
-        return mIBinder;
+        return super.onBind(mIntent);
     }
 
     @Override
     public boolean onUnbind(Intent mIntent) {
-        boolean mOnUnbind = super.onUnbind(mIntent);
         isNotificationAccessEnabled = false;
-        return mOnUnbind;
+        return super.onUnbind(mIntent);
     }
 
     @Override
@@ -120,16 +127,26 @@ public class NLService extends NotificationListenerService implements SharedPref
         }
     }
 
-    private void cancelPlayMedia() {
-        // Cancel previous task if applicable.
-        if (task != null) {
-            task.cancel();
-            timer.purge();
-        }
+    private TimerTask createProcessActiveNotificationsTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+            try {
+                processActiveStatusBarNotifications();
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
+            }
+        };
     }
 
-    private boolean isPackageRelevant(StatusBarNotification sbn) {
-        return Arrays.toString(MediaApp.values()).contains(sbn.getPackageName());
+    private void processActiveStatusBarNotifications() {
+        StatusBarNotification[] activeNotifications = getActiveNotifications();
+        if (activeNotifications != null) {
+            for (StatusBarNotification sbn : getActiveNotifications()) {
+                processStatusBarNotification(sbn);
+            }
+        }
     }
 
     private void processStatusBarNotification(StatusBarNotification sbn) {
@@ -158,49 +175,61 @@ public class NLService extends NotificationListenerService implements SharedPref
         }
     }
 
+    private boolean isPackageRelevant(StatusBarNotification sbn) {
+        return Arrays.toString(MediaApp.values()).contains(sbn.getPackageName());
+    }
+
     private TextToSpeech getTts() {
         return new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                tts.setLanguage(Locale.getDefault());
-                tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
-                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override
-                    public void onStart(String utteranceId) {
+            tts.setLanguage(Locale.getDefault());
+            tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                @Override
+                public void onStart(String utteranceId) {
 
-                    }
+                }
 
-                    @Override
-                    public void onDone(String utteranceId) {
-                        // Abandon focus.
-                        am.abandonAudioFocus(afChangeListener);
-                    }
+                @Override
+                public void onDone(String utteranceId) {
+                    // Abandon focus.
+                    am.abandonAudioFocus(afChangeListener);
+                }
 
-                    @Override
-                    public void onError(String utteranceId) {
+                @Override
+                public void onError(String utteranceId) {
 
-                    }
-                });
+                }
+            });
             }
         });
     }
 
     private void playMediaAsync() {
         cancelPlayMedia();
-        task = createTask();
+        task = createPlayTask();
         timer.scheduleAtFixedRate(task, settingsManager.getPlayMediaDelayInMilliseconds(),
                 settingsManager.getPlayMediaIntervalInMilliseconds());
     }
 
-    private TimerTask createTask() {
+    private void cancelPlayMedia() {
+        // Cancel previous task if applicable.
+        if (task != null) {
+            task.cancel();
+            timer.purge();
+        }
+    }
+
+    private TimerTask createPlayTask() {
         return new TimerTask() {
             @Override
             public void run() {
-                try {
-                    playMedia();
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                }
+            try {
+                playMedia();
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
             }
         };
     }
