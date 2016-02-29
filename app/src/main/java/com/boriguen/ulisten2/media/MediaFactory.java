@@ -1,5 +1,6 @@
 package com.boriguen.ulisten2.media;
 
+import com.boriguen.ulisten2.media.impl.AndroidMusicMedia;
 import com.boriguen.ulisten2.media.impl.PandoraMedia;
 import com.boriguen.ulisten2.notification.NotificationData;
 
@@ -15,7 +16,9 @@ public class MediaFactory {
     public static IMedia createMedia(NotificationData notificationData) {
         IMedia media = null;
 
-        if (notificationData.packageName.equals(MediaApp.PANDORA.toString())) {
+        if (notificationData.packageName.equals(MediaApp.ANDROID_MUSIC.toString())) {
+            media = new AndroidMusicMedia(notificationData);
+        } else if (notificationData.packageName.equals(MediaApp.PANDORA.toString())) {
             media = new PandoraMedia(notificationData);
         }
 

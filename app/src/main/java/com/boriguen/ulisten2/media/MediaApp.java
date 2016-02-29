@@ -5,6 +5,7 @@ package com.boriguen.ulisten2.media;
  */
 public enum MediaApp {
 
+    ANDROID_MUSIC("com.android.music"),
     PANDORA("com.pandora.android");
 
     String packageName = null;
