@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimerTask;
 
 public class NLService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
 
@@ -69,8 +68,8 @@ public class NLService extends NotificationListenerService implements SharedPref
         // Instantiate the handler.
         handler = new Handler();
 
-        // Start playing the media info.
-        playMediaAsync();
+        // Check for ongoing relevant notifications.
+        handler.post(createProcessActiveNotificationsRunnable());
     }
 
     @Override
@@ -85,7 +84,7 @@ public class NLService extends NotificationListenerService implements SharedPref
         tts.shutdown();
         tts = null;
 
-        // Clear timer.
+        // Clear runnable.
         cancelPlayMedia();
 
         // Unregister this service from listening to preference changes.
@@ -121,15 +120,11 @@ public class NLService extends NotificationListenerService implements SharedPref
         }
     }
 
-    private TimerTask createProcessActiveNotificationsTask() {
-        return new TimerTask() {
+    private Runnable createProcessActiveNotificationsRunnable() {
+        return new Runnable() {
             @Override
             public void run() {
-            try {
                 processActiveStatusBarNotifications();
-            } catch (Exception e) {
-                Log.e(TAG, e.toString());
-            }
             }
         };
     }
@@ -163,7 +158,8 @@ public class NLService extends NotificationListenerService implements SharedPref
                 // Update current media.
                 currentMedia = media;
 
-                // Launch the play media timer.
+                // Launch the play media thread.
+                cancelPlayMedia();
                 playMediaAsync();
             }
         }
@@ -201,14 +197,13 @@ public class NLService extends NotificationListenerService implements SharedPref
     }
 
     private void playMediaAsync() {
-        cancelPlayMedia();
         runnable = createPlayRunnable();
         handler.postDelayed(runnable, settingsManager.getPlayMediaDelayInMilliseconds());
     }
 
     private void cancelPlayMedia() {
         // Cancel previous task if applicable.
-        if (handler != null) {
+        if (handler != null && runnable != null) {
             handler.removeCallbacks(runnable);
         }
     }
@@ -262,6 +257,7 @@ public class NLService extends NotificationListenerService implements SharedPref
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(SettingsManager.PLAY_MEDIA_DELAY) || key.equals(SettingsManager.PLAY_MEDIA_INTERVAL)) {
+            cancelPlayMedia();
             playMediaAsync();
         } else if (key.equals(SettingsManager.PLAY_MEDIA_SPEED)) {
             tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
