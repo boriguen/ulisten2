@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class NLService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     public static boolean isNotificationAccessEnabled = false;
 

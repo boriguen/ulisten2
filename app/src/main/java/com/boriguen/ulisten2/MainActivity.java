@@ -11,7 +11,7 @@ import android.widget.Switch;
 import com.boriguen.android.ulisten2.R;
 import com.boriguen.ulisten2.prefs.SettingsActivity;
 import com.boriguen.ulisten2.prefs.SettingsManager;
-import com.boriguen.ulisten2.service.NLService;
+import com.boriguen.ulisten2.service.MediaNotificationListenerService;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener {
 
@@ -33,7 +33,7 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
         // Initialize service state switch component.
         serviceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
-        serviceStateSwitch.setChecked(NLService.isNotificationAccessEnabled);
+        serviceStateSwitch.setChecked(MediaNotificationListenerService.isNotificationAccessEnabled);
         serviceStateSwitch.setOnCheckedChangeListener(this);
     }
 
@@ -62,17 +62,17 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (!isChecked && NLService.isNotificationAccessEnabled ||
-                isChecked && !NLService.isNotificationAccessEnabled) {
+        if (!isChecked && MediaNotificationListenerService.isNotificationAccessEnabled ||
+                isChecked && !MediaNotificationListenerService.isNotificationAccessEnabled) {
             startActivityForResult(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"), REQUEST_NOTIFICATION_ACCESS);
         }
     }
 
     private void updateServiceState(boolean enabled) {
         if (enabled) {
-            startService(new Intent(MainActivity.this, NLService.class));
+            startService(new Intent(MainActivity.this, MediaNotificationListenerService.class));
         } else {
-            stopService(new Intent(MainActivity.this, NLService.class));
+            stopService(new Intent(MainActivity.this, MediaNotificationListenerService.class));
         }
     }
 
@@ -80,7 +80,7 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
-            serviceStateSwitch.setChecked(NLService.isNotificationAccessEnabled);
+            serviceStateSwitch.setChecked(MediaNotificationListenerService.isNotificationAccessEnabled);
             //updateServiceState(NLService.isNotificationAccessEnabled);
         }
 
