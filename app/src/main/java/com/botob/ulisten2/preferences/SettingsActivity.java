@@ -1,4 +1,4 @@
-package com.boriguen.ulisten2.prefs;
+package com.botob.ulisten2.preferences;
 
 import android.app.Activity;
 import android.os.Bundle;

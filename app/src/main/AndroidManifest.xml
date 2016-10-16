@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.boriguen.android.ulisten2"
+    package="com.botob.android.ulisten2"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name="com.boriguen.ulisten2.MainActivity"
+            android:name="com.botob.ulisten2.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,11 +28,11 @@
         </activity>
 
         <activity
-            android:name="com.boriguen.ulisten2.prefs.SettingsActivity"
+            android:name="com.botob.ulisten2.preferences.SettingsActivity"
             android:label="@string/action_settings"/>
 
         <service
-            android:name="com.boriguen.ulisten2.service.MediaNotificationListenerService"
+            android:name="com.botob.ulisten2.services.MediaNotificationListenerService"
             android:label="@string/service_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
 

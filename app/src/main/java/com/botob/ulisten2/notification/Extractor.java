@@ -1,4 +1,4 @@
-package com.boriguen.ulisten2.notification;
+package com.botob.ulisten2.notification;
 
 import android.app.Notification;
 import android.app.Notification.Action;
@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
-import com.boriguen.android.ulisten2.R;
+import com.botob.android.ulisten2.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

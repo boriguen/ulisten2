@@ -1,4 +1,4 @@
-package com.boriguen.ulisten2.service;
+package com.botob.ulisten2.services;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +12,12 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
-import com.boriguen.ulisten2.media.IMedia;
-import com.boriguen.ulisten2.media.MediaApp;
-import com.boriguen.ulisten2.media.MediaFactory;
-import com.boriguen.ulisten2.notification.Extractor;
-import com.boriguen.ulisten2.notification.NotificationData;
-import com.boriguen.ulisten2.prefs.SettingsManager;
+import com.botob.ulisten2.media.IMedia;
+import com.botob.ulisten2.media.MediaApp;
+import com.botob.ulisten2.media.MediaFactory;
+import com.botob.ulisten2.notification.Extractor;
+import com.botob.ulisten2.notification.NotificationData;
+import com.botob.ulisten2.preferences.SettingsManager;
 
 import java.util.Arrays;
 import java.util.HashMap;

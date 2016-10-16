@@ -1,4 +1,4 @@
-package com.boriguen.ulisten2;
+package com.botob.ulisten2;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,10 +8,10 @@ import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
-import com.boriguen.android.ulisten2.R;
-import com.boriguen.ulisten2.prefs.SettingsActivity;
-import com.boriguen.ulisten2.prefs.SettingsManager;
-import com.boriguen.ulisten2.service.MediaNotificationListenerService;
+import com.botob.android.ulisten2.R;
+import com.botob.ulisten2.preferences.SettingsActivity;
+import com.botob.ulisten2.preferences.SettingsManager;
+import com.botob.ulisten2.services.MediaNotificationListenerService;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener {
 

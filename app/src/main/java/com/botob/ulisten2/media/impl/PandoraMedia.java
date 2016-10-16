@@ -1,7 +1,7 @@
-package com.boriguen.ulisten2.media.impl;
+package com.botob.ulisten2.media.impl;
 
-import com.boriguen.ulisten2.media.AbstractMedia;
-import com.boriguen.ulisten2.notification.NotificationData;
+import com.botob.ulisten2.media.AbstractMedia;
+import com.botob.ulisten2.notification.NotificationData;
 
 /**
  * Created by boris on 12/9/14.

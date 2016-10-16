@@ -1,9 +1,9 @@
-package com.boriguen.ulisten2.prefs;
+package com.botob.ulisten2.preferences;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-import com.boriguen.android.ulisten2.R;
+import com.botob.android.ulisten2.R;
 
 /**
  * Created by guenebau on 10/4/15.
