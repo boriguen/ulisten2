@@ -5,7 +5,7 @@ import com.botob.ulisten2.notification.NotificationData;
 /**
  * Created by boris on 12/9/14.
  */
-public abstract class AbstractMedia implements IMedia {
+public abstract class AbstractMedia implements Media {
 
     protected NotificationData notificationData = null;
     protected CharSequence title = null;

@@ -4,11 +4,15 @@ import com.botob.ulisten2.media.AbstractMedia;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
- * Created by boris on 12/9/14.
+ * DeezerMedia is the class extending AbstractMedia responsible for extracting the media information
+ * from the Deezer notifications.
+ *
+ * @author boris
+ * @date   10/16/16
  */
-public class AndroidMusicMedia extends AbstractMedia {
+public class DeezerMedia extends AbstractMedia {
 
-    public AndroidMusicMedia(NotificationData notificationData) {
+    public DeezerMedia(NotificationData notificationData) {
         super(notificationData);
     }
 
@@ -19,12 +23,12 @@ public class AndroidMusicMedia extends AbstractMedia {
 
     @Override
     protected CharSequence fetchAlbum(NotificationData notificationData) {
-        return notificationData.messageTextLines[0];
+        return null;
     }
 
     @Override
     protected CharSequence fetchArtist(NotificationData notificationData) {
-        return notificationData.messageTextLines[1];
+        return notificationData.messageTextLines[0];
     }
 
 }

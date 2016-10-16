@@ -1,12 +1,16 @@
 package com.botob.ulisten2.media;
 
 /**
- * Created by boris on 12/9/14.
+ * @author boriguen
+ * @date   12/9/14
  */
 public enum MediaApp {
 
     ANDROID_MUSIC("com.android.music"),
-    PANDORA("com.pandora.android");
+    DEEZER("deezer.android.app"),
+    GOOGLE_PLAY_MUSIC("com.google.android.music"),
+    PANDORA("com.pandora.android"),
+    SPOTIFY("com.spotify.music");
 
     String packageName = null;
     MediaApp(String packageName) {

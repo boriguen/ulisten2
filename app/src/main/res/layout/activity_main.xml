@@ -50,7 +50,7 @@
          the container. -->
     <fragment
         android:id="@+id/navigation_drawer"
-        android:name="com.botob.ulisten2.NavigationDrawerFragment"
+        android:name="com.botob.ulisten2.fragments.NavigationDrawerFragment"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"

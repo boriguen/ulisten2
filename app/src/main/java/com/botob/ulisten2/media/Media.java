@@ -3,7 +3,7 @@ package com.botob.ulisten2.media;
 /**
  * Created by boris on 12/9/14.
  */
-public interface IMedia {
+public interface Media {
 
     String getTitle();
 

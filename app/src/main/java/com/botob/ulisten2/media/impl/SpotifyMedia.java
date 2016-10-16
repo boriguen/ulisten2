@@ -4,11 +4,15 @@ import com.botob.ulisten2.media.AbstractMedia;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
- * Created by boris on 12/9/14.
+ * SpotifyMedia is the class extending AbstractMedia responsible for extracting the media information
+ * from the Spotify notifications.
+ *
+ * @author boris
+ * @date   10/16/16
  */
-public class AndroidMusicMedia extends AbstractMedia {
+public class SpotifyMedia extends AbstractMedia {
 
-    public AndroidMusicMedia(NotificationData notificationData) {
+    public SpotifyMedia(NotificationData notificationData) {
         super(notificationData);
     }
 
@@ -19,7 +23,7 @@ public class AndroidMusicMedia extends AbstractMedia {
 
     @Override
     protected CharSequence fetchAlbum(NotificationData notificationData) {
-        return notificationData.messageTextLines[0];
+        return null;
     }
 
     @Override

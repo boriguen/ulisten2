@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import com.botob.ulisten2.fragments.NavigationDrawerFragment;
 import com.botob.ulisten2.preferences.SettingsActivity;
 import com.botob.ulisten2.preferences.SettingsManager;
 import com.botob.ulisten2.services.MediaNotificationListenerService;

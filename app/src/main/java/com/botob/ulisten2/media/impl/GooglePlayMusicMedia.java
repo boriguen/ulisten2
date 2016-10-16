@@ -4,11 +4,15 @@ import com.botob.ulisten2.media.AbstractMedia;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
- * Created by boris on 12/9/14.
+ * GooglePlayMusicMedia is the class extending AbstractMedia responsible for extracting the media information
+ * from the Google Play Music notifications.
+ *
+ * @author boriguen
+ * @date   10/16/16
  */
-public class AndroidMusicMedia extends AbstractMedia {
+public class GooglePlayMusicMedia extends AbstractMedia {
 
-    public AndroidMusicMedia(NotificationData notificationData) {
+    public GooglePlayMusicMedia(NotificationData notificationData) {
         super(notificationData);
     }
 
@@ -19,12 +23,12 @@ public class AndroidMusicMedia extends AbstractMedia {
 
     @Override
     protected CharSequence fetchAlbum(NotificationData notificationData) {
-        return notificationData.messageTextLines[0];
+        return notificationData.subText;
     }
 
     @Override
     protected CharSequence fetchArtist(NotificationData notificationData) {
-        return notificationData.messageTextLines[1];
+        return notificationData.messageText;
     }
 
 }

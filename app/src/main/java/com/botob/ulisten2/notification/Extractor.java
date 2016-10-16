@@ -5,11 +5,7 @@ import android.app.Notification.Action;
 import android.content.Context;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,65 +19,38 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
- * Created by boris on 11/17/14.
+ * Extractor is the class performing different manipulations on status bar notifications to
+ * extract relevant information.
+ *
+ * @author boriguen
+ * @date   11/17/14
  */
-public final class Extractor {
-
+public class Extractor {
+    /**
+     * The tag to use for logging.
+     */
     private static final String TAG = "Extractor";
 
     /**
      * Removes all kinds of multiple spaces from given string.
+     *
+     * @param charSequence the char sequence to remove spaces from.
      */
-    static String removeSpaces(CharSequence cs) {
-        if (cs == null) return null;
-        String string = cs instanceof String
-                ? (String) cs : cs.toString();
+    private static String removeSpaces(CharSequence charSequence) {
+        if (charSequence == null) return null;
+        String string = charSequence instanceof String
+                ? (String) charSequence : charSequence.toString();
         return string
                 .replaceAll("(\\s+$|^\\s+)", "")
                 .replaceAll("\n+", "\n");
     }
 
-    static CharSequence mergeLargeMessage(CharSequence[] messages) {
-        if (messages == null) return null;
-        int length = messages.length;
-
-        boolean isFirstMessage = true;
-        boolean highlight = length > 1; // highlight first letters of messages or no?
-
-        SpannableStringBuilder sb = new SpannableStringBuilder();
-        for (CharSequence message : messages) {
-            CharSequence line = removeSpaces(message);
-            if (TextUtils.isEmpty(line)) {
-                Log.w(TAG, "One of text lines was null!");
-                continue;
-            }
-
-            // Start every new message from new line
-            if (!isFirstMessage & !(isFirstMessage = false)) {
-                sb.append('\n');
-            }
-
-            int start = sb.length();
-            sb.append(line);
-
-            if (highlight) {
-                sb.setSpan(new ForegroundColorSpan(0xaaFFFFFF),
-                        start, start + 1,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                sb.setSpan(new UnderlineSpan(),
-                        start, start + 1,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-
-        return sb;
-    }
-
     /**
      * Gets a bundle with additional data from notification.
+     *
+     * @param statusBarNotification the notification to extract information from.
      */
     private Bundle getExtras(StatusBarNotification statusBarNotification) {
-
         // Access extras using reflections.
         try {
             Field field = statusBarNotification.getNotification().getClass().getDeclaredField("extras");
@@ -93,6 +62,14 @@ public final class Extractor {
         }
     }
 
+    /**
+     * Loads the notification texts into the notification data instance.
+     *
+     * @param context               the context to access views from.
+     * @param statusBarNotification the notification to extract text from.
+     * @param data                  the notification data instance to fill in.
+     * @return                      the filled in notification data instance.
+     */
     private NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
         final Bundle extras = getExtras(statusBarNotification);
 
@@ -101,9 +78,9 @@ public final class Extractor {
             Log.d(TAG, "Ended loading from extras.");
         }
         if (TextUtils.isEmpty(data.titleText)
-                && TextUtils.isEmpty(data.titleBigText)
-                && TextUtils.isEmpty(data.messageText)
-                && data.messageTextLines == null) {
+                || TextUtils.isEmpty(data.titleBigText)
+                || TextUtils.isEmpty(data.messageText)
+                || data.messageTextLines == null) {
             Log.d(TAG, "Starting loading from view.");
             loadFromView(data, context, statusBarNotification);
             Log.d(TAG, "Ended loading from view.");
@@ -120,13 +97,10 @@ public final class Extractor {
         return data;
     }
 
-    //-- LOADING FROM EXTRAS --------------------------------------------------
-
     /**
-     * Loads all possible texts from given {@link Notification#extras extras} to
-     * {@link NotificationData}.
+     * Loads all possible texts from given extras to the given notification data object.
      *
-     * @param extras extras to load from
+     * @param extras the extras to load from.
      */
     private void loadFromExtras(NotificationData data, Bundle extras) {
         data.titleBigText = extras.getCharSequence(Notification.EXTRA_TITLE_BIG);
@@ -155,53 +129,66 @@ public final class Extractor {
         }
     }
 
-    //-- LOADING FROM VIES ----------------------------------------------------
-
+    /**
+     * Loads all possible texts from given notification to notification data object.
+     *
+     * @param data                  the notification data to fill in.
+     * @param context               the context to get app info from.
+     * @param statusBarNotification the notification to extract information from.
+     */
     private void loadFromView(NotificationData data,
                               Context context,
                               StatusBarNotification statusBarNotification) {
         ViewGroup view;
         Notification notification = statusBarNotification.getNotification();
         try {
-            final RemoteViews rvs = notification.bigContentView == null ? notification.contentView : notification.bigContentView;
+            final RemoteViews remoteViews = notification.bigContentView == null ? notification.contentView :
+                    notification.bigContentView;
 
             // Try to load view from remote views.
-            Context contextNotify = context.createPackageContext(statusBarNotification.getPackageName(), Context.CONTEXT_RESTRICTED);
+            Context contextNotify = context.createPackageContext(statusBarNotification.getPackageName(),
+                    Context.CONTEXT_RESTRICTED);
             LayoutInflater inflater = (LayoutInflater) contextNotify.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = (ViewGroup) inflater.inflate(rvs.getLayoutId(), null);
-            rvs.reapply(contextNotify, view);
+            view = (ViewGroup) inflater.inflate(remoteViews.getLayoutId(), null);
+            remoteViews.reapply(contextNotify, view);
             Log.d(TAG, "View loaded from remote views.");
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             return;
         }
 
+        // Remove non relevant text views.
         ArrayList<TextView> textViews = new RecursiveFinder<TextView>(TextView.class).expand(view);
         removeClickableViews(textViews);
         removeSubtextViews(context, textViews);
         removeActionViews(notification.actions, textViews);
 
-        // There're no views present.
+        // Deal with no views case after filter 1.
         if (textViews.size() == 0)
             return;
-        Log.d(TAG, "Views present after filtering 1.");
 
+        // Process title text.
         TextView title = findTitleTextView(textViews);
-        textViews.remove(title); // no need of title view anymore
-        data.titleText = title.getText();
+        textViews.remove(title); // no need of title view anymore.
+        if (title.getText() != null) {
+            data.titleText = title.getText();
+        }
 
-        // There're no views present.
+        // Deal with no views case after filter 2.
         if (textViews.size() == 0)
             return;
-        Log.d(TAG, "Views present after filtering 2.");
 
+        // Process all remaining texts.
         int length = textViews.size();
         CharSequence[] messages = new CharSequence[length];
         for (int i = 0; i < length; i++) {
             messages[i] = textViews.get(i).getText();
         }
 
-        data.messageText = mergeLargeMessage(messages);
+        if (messages.length > 0) {
+            // Store the message text lines.
+            data.messageTextLines = messages;
+        }
     }
 
     private TextView findTitleTextView(ArrayList<TextView> textViews) {
@@ -248,17 +235,21 @@ public final class Extractor {
             final TextView child = textViews.get(i);
             final String text = child.getText().toString();
             if (child.getTextSize() == subtextSize
-                    // empty textviews
+                    // Empty textviews.
                     || text.matches("^(\\s*|)$")
-                    // clock textviews
+                    // Clock textviews.
                     || text.matches("^\\d{1,2}:\\d{1,2}(\\s?\\w{2}|)$")) {
                 textViews.remove(i);
             }
         }
     }
 
+    /**
+     * RecursiveFinder is the class looking for instances of a given type in a given view group.
+     *
+     * @param <T> the type of object to look for.
+     */
     private static class RecursiveFinder<T extends View> {
-
         private final ArrayList<T> list;
         private final Class<T> clazz;
 
@@ -272,16 +263,13 @@ public final class Extractor {
             int childCount = viewGroup.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View child = viewGroup.getChildAt(i + offset);
-
-                if (child == null) {
-                    continue;
-                }
-
-                if (clazz.isAssignableFrom(child.getClass())) {
-                    //noinspection unchecked
-                    list.add((T) child);
-                } else if (child instanceof ViewGroup) {
-                    expand((ViewGroup) child);
+                if (child != null) {
+                    if (clazz.isAssignableFrom(child.getClass())) {
+                        // No inspection unchecked.
+                        list.add((T) child);
+                    } else if (child instanceof ViewGroup) {
+                        expand((ViewGroup) child);
+                    }
                 }
             }
             return list;

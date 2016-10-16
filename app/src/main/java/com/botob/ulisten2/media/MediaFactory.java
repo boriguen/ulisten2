@@ -1,11 +1,15 @@
 package com.botob.ulisten2.media;
 
 import com.botob.ulisten2.media.impl.AndroidMusicMedia;
+import com.botob.ulisten2.media.impl.DeezerMedia;
+import com.botob.ulisten2.media.impl.GooglePlayMusicMedia;
 import com.botob.ulisten2.media.impl.PandoraMedia;
+import com.botob.ulisten2.media.impl.SpotifyMedia;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
- * Created by boris on 12/9/14.
+ * @author boriguen
+ * @date   10/16/16
  */
 public class MediaFactory {
 
@@ -13,13 +17,19 @@ public class MediaFactory {
 
     }
 
-    public static IMedia createMedia(NotificationData notificationData) {
-        IMedia media = null;
+    public static Media createMedia(NotificationData notificationData) {
+        Media media = null;
 
         if (notificationData.packageName.equals(MediaApp.ANDROID_MUSIC.toString())) {
             media = new AndroidMusicMedia(notificationData);
+        } else if (notificationData.packageName.equals(MediaApp.DEEZER.toString())) {
+            media = new DeezerMedia(notificationData);
+        } else if (notificationData.packageName.equals(MediaApp.GOOGLE_PLAY_MUSIC.toString())) {
+            media = new GooglePlayMusicMedia(notificationData);
         } else if (notificationData.packageName.equals(MediaApp.PANDORA.toString())) {
             media = new PandoraMedia(notificationData);
+        } else if (notificationData.packageName.equals(MediaApp.SPOTIFY.toString())) {
+            media = new SpotifyMedia(notificationData);
         }
 
         return media;

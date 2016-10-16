@@ -24,7 +24,7 @@ public class PandoraMedia extends AbstractMedia {
 
     @Override
     protected CharSequence fetchArtist(NotificationData notificationData) {
-        return notificationData.messageText;
+        return notificationData.messageTextLines[0];
     }
 
 }

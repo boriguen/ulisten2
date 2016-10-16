@@ -12,7 +12,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
-import com.botob.ulisten2.media.IMedia;
+import com.botob.ulisten2.media.Media;
 import com.botob.ulisten2.media.MediaApp;
 import com.botob.ulisten2.media.MediaFactory;
 import com.botob.ulisten2.notification.Extractor;
@@ -42,7 +42,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     List<String> speeches = null;
 
-    IMedia currentMedia = null;
+    Media currentMedia = null;
 
     SettingsManager settingsManager = null;
 
@@ -153,7 +153,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             Log.i(TAG, notifInBrief);
 
             // Generate related media.
-            IMedia media = MediaFactory.createMedia(notificationData);
+            Media media = MediaFactory.createMedia(notificationData);
             if (media != null && media.isRelevant() && !media.equals(currentMedia)) {
                 // Update current media.
                 currentMedia = media;
