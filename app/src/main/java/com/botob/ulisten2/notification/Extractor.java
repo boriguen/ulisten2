@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
-import com.botob.android.ulisten2.R;
+import com.botob.ulisten2.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

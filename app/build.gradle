@@ -4,7 +4,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "21.1.2"
     defaultConfig {
-        applicationId "com.boriguen.android.ulisten2"
+        applicationId "com.botob.ulisten2"
         minSdkVersion 21
         targetSdkVersion 23
     }
