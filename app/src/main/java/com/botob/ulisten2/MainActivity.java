@@ -34,9 +34,9 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
      */
     private CharSequence mTitle;
 
-    SettingsManager settingsManager;
+    private SettingsManager settingsManager;
 
-    Switch serviceStateSwitch;
+    private Switch serviceStateSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

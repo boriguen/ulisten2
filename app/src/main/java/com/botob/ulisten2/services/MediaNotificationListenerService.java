@@ -33,18 +33,18 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     private static final String TAG = "NLService";
 
-    AudioManager am;
+    private AudioManager am;
 
-    TextToSpeech tts;
+    private TextToSpeech tts;
 
-    Runnable runnable;
-    Handler handler;
+    private Runnable runnable;
+    private Handler handler;
 
-    List<String> speeches;
+    private List<String> speeches;
 
-    Media currentMedia;
+    private Media currentMedia;
 
-    SettingsManager settingsManager;
+    private SettingsManager settingsManager;
 
     @Override
     public void onCreate() {

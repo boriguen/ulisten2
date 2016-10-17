@@ -19,11 +19,11 @@ public enum MediaApp {
     }
 
     public String getPackageName() {
-        return this.packageName;
+        return packageName;
     }
 
     @Override
     public String toString() {
-        return this.packageName;
+        return packageName;
     }
 }
