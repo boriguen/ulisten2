@@ -10,6 +10,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.botob.ulisten2.media.Media;
@@ -29,9 +30,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     public static boolean isNotificationAccessEnabled = false;
 
-    private static final int DELAY_BEFORE_CHECKING_ACTIVE_NOTIFICATIONS = 3000;
-
-    private static final String TAG = "NLService";
+    private static final String TAG = MediaNotificationListenerService.class.getSimpleName();
 
     AudioManager am = null;
 
@@ -78,7 +77,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
         // Clear audio.
         am = null;
-        afChangeListener = null;
+        audioFocusChangeListener = null;
 
         // Clear TTS.
         tts.shutdown();
@@ -104,18 +103,18 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     }
 
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn) {
+    public void onNotificationPosted(StatusBarNotification statusBarNotification) {
         Log.i(TAG, "**********  onNotificationPosted");
 
         // Process new media info.
-        processStatusBarNotification(sbn);
+        processStatusBarNotification(statusBarNotification);
     }
 
     @Override
-    public void onNotificationRemoved(StatusBarNotification sbn) {
+    public void onNotificationRemoved(StatusBarNotification statusBarNotification) {
         Log.i(TAG, "**********  onNotificationRemoved");
 
-        if (isPackageRelevant(sbn)) {
+        if (isPackageRelevant(statusBarNotification)) {
             cancelPlayMedia();
         }
     }
@@ -138,18 +137,19 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         }
     }
 
-    private void processStatusBarNotification(StatusBarNotification sbn) {
-        if (isPackageRelevant(sbn)) {
+    private void processStatusBarNotification(StatusBarNotification statusBarNotification) {
+        if (isPackageRelevant(statusBarNotification)) {
             // Extract text info.
             Extractor extractor = new Extractor();
-            NotificationData notificationData = extractor.load(getApplicationContext(), sbn, new NotificationData());
+            NotificationData notificationData = extractor.load(getApplicationContext(), statusBarNotification, new NotificationData());
 
             // Format notification info.
-            String notifInBrief = String.format("{id: %d, time: %d, package: %s, Big title: %s, title: %s, " +
+            String notifInBrief = String.format(Locale.US, "{id: %d, time: %d, package: %s, Big title: %s, title: %s, " +
                             "summary: %s, info: %s, sub: %s, message: %s, message lines: %s}",
-                    sbn.getId(), sbn.getPostTime(), sbn.getPackageName(), notificationData.titleBigText,
-                    notificationData.titleText, notificationData.summaryText, notificationData.infoText, notificationData.subText,
-                    notificationData.messageText, notificationData.messageTextLines);
+                    statusBarNotification.getId(), statusBarNotification.getPostTime(),
+                    statusBarNotification.getPackageName(), notificationData.titleBigText,
+                    notificationData.titleText, notificationData.summaryText, notificationData.infoText,
+                    notificationData.subText, notificationData.messageText, TextUtils.concat(notificationData.messageTextLines));
             Log.i(TAG, notifInBrief);
 
             // Generate related media.
@@ -165,8 +165,8 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         }
     }
 
-    private boolean isPackageRelevant(StatusBarNotification sbn) {
-        return Arrays.toString(MediaApp.values()).contains(sbn.getPackageName());
+    private boolean isPackageRelevant(StatusBarNotification statusBarNotification) {
+        return Arrays.toString(MediaApp.values()).contains(statusBarNotification.getPackageName());
     }
 
     private TextToSpeech getTts() {
@@ -184,7 +184,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
                 @Override
                 public void onDone(String utteranceId) {
                     // Abandon focus.
-                    am.abandonAudioFocus(afChangeListener);
+                    am.abandonAudioFocus(audioFocusChangeListener);
                 }
 
                 @Override
@@ -225,7 +225,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             speeches.add(newSpeech);
 
             // Request audio focus for playback
-            int result = am.requestAudioFocus(afChangeListener,
+            int result = am.requestAudioFocus(audioFocusChangeListener,
                     // Use the notification stream.
                     AudioManager.STREAM_NOTIFICATION,
                     // Request audio focus.
@@ -242,7 +242,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     }
 
-    AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+    AudioManager.OnAudioFocusChangeListener audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
         public void onAudioFocusChange(int focusChange) {
             if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
 
