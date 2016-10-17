@@ -14,7 +14,7 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
     public static final String PLAY_MEDIA_SPEED = "pref_play_media_speed";
     public static final String PLAY_SERVICE_ENABLED = "pref_play_service_enabled";
 
-    SharedPreferences sharedPreferences = null;
+    SharedPreferences sharedPreferences;
     int delay = -1;
     int interval = -1;
     float speed = -1;

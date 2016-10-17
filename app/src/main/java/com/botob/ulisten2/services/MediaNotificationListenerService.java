@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static boolean isNotificationAccessEnabled = false;
 
@@ -33,18 +33,18 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     private static final String TAG = "NLService";
 
-    AudioManager am = null;
+    AudioManager am;
 
-    TextToSpeech tts = null;
+    TextToSpeech tts;
 
-    Runnable runnable = null;
-    Handler handler = null;
+    Runnable runnable;
+    Handler handler;
 
-    List<String> speeches = null;
+    List<String> speeches;
 
-    Media currentMedia = null;
+    Media currentMedia;
 
-    SettingsManager settingsManager = null;
+    SettingsManager settingsManager;
 
     @Override
     public void onCreate() {
@@ -173,25 +173,25 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         return new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-            tts.setLanguage(Locale.getDefault());
-            tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
-            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override
-                public void onStart(String utteranceId) {
+                tts.setLanguage(Locale.getDefault());
+                tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
+                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onStart(String utteranceId) {
 
-                }
+                    }
 
-                @Override
-                public void onDone(String utteranceId) {
-                    // Abandon focus.
-                    am.abandonAudioFocus(afChangeListener);
-                }
+                    @Override
+                    public void onDone(String utteranceId) {
+                        // Abandon focus.
+                        am.abandonAudioFocus(afChangeListener);
+                    }
 
-                @Override
-                public void onError(String utteranceId) {
+                    @Override
+                    public void onError(String utteranceId) {
 
-                }
-            });
+                    }
+                });
             }
         });
     }

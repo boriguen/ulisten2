@@ -7,10 +7,10 @@ import com.botob.ulisten2.notification.NotificationData;
  */
 public abstract class AbstractMedia implements Media {
 
-    protected NotificationData notificationData = null;
-    protected CharSequence title = null;
-    protected CharSequence album = null;
-    protected CharSequence artist = null;
+    protected NotificationData notificationData;
+    protected CharSequence title;
+    protected CharSequence album;
+    protected CharSequence artist;
 
     public AbstractMedia(NotificationData notificationData) {
         this.notificationData = notificationData;

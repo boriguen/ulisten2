@@ -12,7 +12,7 @@ public enum MediaApp {
     PANDORA("com.pandora.android"),
     SPOTIFY("com.spotify.music");
 
-    String packageName = null;
+    String packageName;
 
     MediaApp(String packageName) {
         this.packageName = packageName;
