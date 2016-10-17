@@ -86,7 +86,9 @@ public class Extractor {
             Log.d(TAG, "Starting loading from view.");
             loadFromView(data, context, statusBarNotification);
             Log.d(TAG, "Ended loading from view.");
-
+        }
+        if (data.messageTextLines == null) {
+            data.messageTextLines = new CharSequence[]{};
         }
         return data;
     }
@@ -125,8 +127,7 @@ public class Extractor {
 
             // Create new array.
             if (list.size() > 0) {
-                lines = list.toArray(new CharSequence[list.size()]);
-                data.messageTextLines = lines;
+                data.messageTextLines = lines.clone();
             }
         }
     }
