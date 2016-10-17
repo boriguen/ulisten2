@@ -233,11 +233,6 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 // Speak music notification info.
                 Log.i(TAG, "Speech = " + newSpeech);
-/*                HashMap<String, String> map = new HashMap<>();
-                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
-                tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, map);
-                Bundle bundle = new Bundle();
-                bundle.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");*/
                 tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, null, "UniqueID");
             }
         }
