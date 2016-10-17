@@ -3,6 +3,7 @@ package com.botob.ulisten2.fragments;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -170,7 +171,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
     }
 
     @Override
@@ -197,7 +198,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         try {
             mCallbacks = (NavigationDrawerCallbacks) activity;
