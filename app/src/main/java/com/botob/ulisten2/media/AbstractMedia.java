@@ -7,10 +7,10 @@ import com.botob.ulisten2.notification.NotificationData;
  */
 public abstract class AbstractMedia implements Media {
 
-    protected NotificationData notificationData = null;
-    protected CharSequence title = null;
-    protected CharSequence album = null;
-    protected CharSequence artist = null;
+    private NotificationData notificationData;
+    private CharSequence title;
+    private CharSequence album;
+    private CharSequence artist;
 
     public AbstractMedia(NotificationData notificationData) {
         this.notificationData = notificationData;
@@ -50,5 +50,4 @@ public abstract class AbstractMedia implements Media {
     protected abstract CharSequence fetchAlbum(NotificationData notificationData);
 
     protected abstract CharSequence fetchArtist(NotificationData notificationData);
-
 }

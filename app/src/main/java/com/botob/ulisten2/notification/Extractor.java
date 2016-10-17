@@ -17,19 +17,21 @@ import com.botob.ulisten2.R;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Extractor is the class performing different manipulations on status bar notifications to
  * extract relevant information.
  *
  * @author boriguen
- * @date   11/17/14
+ * @date 11/17/14
  */
 public class Extractor {
+
     /**
      * The tag to use for logging.
      */
-    private static final String TAG = "Extractor";
+    private static final String TAG = Extractor.class.getSimpleName();
 
     /**
      * Removes all kinds of multiple spaces from given string.
@@ -68,7 +70,7 @@ public class Extractor {
      * @param context               the context to access views from.
      * @param statusBarNotification the notification to extract text from.
      * @param data                  the notification data instance to fill in.
-     * @return                      the filled in notification data instance.
+     * @return the filled in notification data instance.
      */
     private NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
         final Bundle extras = getExtras(statusBarNotification);
@@ -113,7 +115,7 @@ public class Extractor {
         CharSequence[] lines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES);
         if (lines != null) {
             // Ignore empty lines.
-            ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+            List<CharSequence> list = new ArrayList<>();
             for (CharSequence msg : lines) {
                 msg = removeSpaces(msg);
                 if (!TextUtils.isEmpty(msg)) {
@@ -158,7 +160,7 @@ public class Extractor {
         }
 
         // Remove non relevant text views.
-        ArrayList<TextView> textViews = new RecursiveFinder<TextView>(TextView.class).expand(view);
+        List<TextView> textViews = new RecursiveFinder<>(TextView.class).expand(view);
         removeClickableViews(textViews);
         removeSubtextViews(context, textViews);
         removeActionViews(notification.actions, textViews);
@@ -191,7 +193,7 @@ public class Extractor {
         }
     }
 
-    private TextView findTitleTextView(ArrayList<TextView> textViews) {
+    private TextView findTitleTextView(List<TextView> textViews) {
         // The idea is that title text is biggest from all
         // views here.
         TextView biggest = null;
@@ -203,7 +205,7 @@ public class Extractor {
         return biggest;
     }
 
-    private void removeActionViews(Action[] actions, ArrayList<TextView> textViews) {
+    private void removeActionViews(Action[] actions, List<TextView> textViews) {
         if (actions == null) {
             return;
         }
@@ -219,7 +221,7 @@ public class Extractor {
         }
     }
 
-    private void removeClickableViews(ArrayList<TextView> textViews) {
+    private void removeClickableViews(List<TextView> textViews) {
         for (int i = textViews.size() - 1; i >= 0; i--) {
             TextView child = textViews.get(i);
             if (child.isClickable() || child.getVisibility() != View.VISIBLE) {
@@ -229,7 +231,7 @@ public class Extractor {
         }
     }
 
-    private void removeSubtextViews(Context context, ArrayList<TextView> textViews) {
+    private void removeSubtextViews(Context context, List<TextView> textViews) {
         float subtextSize = context.getResources().getDimension(R.dimen.notification_subtext_size);
         for (int i = textViews.size() - 1; i >= 0; i--) {
             final TextView child = textViews.get(i);
@@ -250,15 +252,15 @@ public class Extractor {
      * @param <T> the type of object to look for.
      */
     private static class RecursiveFinder<T extends View> {
-        private final ArrayList<T> list;
+        private final List<T> list;
         private final Class<T> clazz;
 
         public RecursiveFinder(Class<T> clazz) {
-            this.list = new ArrayList<T>();
+            this.list = new ArrayList<>();
             this.clazz = clazz;
         }
 
-        public ArrayList<T> expand(ViewGroup viewGroup) {
+        public List<T> expand(ViewGroup viewGroup) {
             int offset = 0;
             int childCount = viewGroup.getChildCount();
             for (int i = 0; i < childCount; i++) {
@@ -275,5 +277,4 @@ public class Extractor {
             return list;
         }
     }
-
 }

@@ -2,7 +2,7 @@ package com.botob.ulisten2.media;
 
 /**
  * @author boriguen
- * @date   12/9/14
+ * @date 12/9/14
  */
 public enum MediaApp {
 
@@ -12,18 +12,18 @@ public enum MediaApp {
     PANDORA("com.pandora.android"),
     SPOTIFY("com.spotify.music");
 
-    String packageName = null;
+    String packageName;
+
     MediaApp(String packageName) {
         this.packageName = packageName;
     }
 
     public String getPackageName() {
-        return this.packageName;
+        return packageName;
     }
 
     @Override
     public String toString() {
-        return this.packageName;
+        return packageName;
     }
-
 }
