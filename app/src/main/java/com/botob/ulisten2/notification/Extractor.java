@@ -127,7 +127,8 @@ public class Extractor {
 
             // Create new array.
             if (list.size() > 0) {
-                data.messageTextLines = lines.clone();
+                lines = list.toArray(new CharSequence[list.size()]);
+                data.messageTextLines = lines;
             }
         }
     }
