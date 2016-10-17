@@ -8,7 +8,7 @@ import com.botob.ulisten2.notification.NotificationData;
  * from the Google Play Music notifications.
  *
  * @author boriguen
- * @date   10/16/16
+ * @date 10/16/16
  */
 public class GooglePlayMusicMedia extends AbstractMedia {
 
@@ -30,5 +30,4 @@ public class GooglePlayMusicMedia extends AbstractMedia {
     protected CharSequence fetchArtist(NotificationData notificationData) {
         return notificationData.messageText;
     }
-
 }

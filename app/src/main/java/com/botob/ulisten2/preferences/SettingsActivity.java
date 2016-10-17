@@ -28,5 +28,4 @@ public class SettingsActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

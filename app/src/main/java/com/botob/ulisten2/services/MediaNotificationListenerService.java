@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static boolean isNotificationAccessEnabled = false;
 
@@ -33,18 +33,18 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     private static final String TAG = "NLService";
 
-    AudioManager am = null;
+    private AudioManager am;
 
-    TextToSpeech tts = null;
+    private TextToSpeech tts;
 
-    Runnable runnable = null;
-    Handler handler = null;
+    private Runnable runnable;
+    private Handler handler;
 
-    List<String> speeches = null;
+    private List<String> speeches;
 
-    Media currentMedia = null;
+    private Media currentMedia;
 
-    SettingsManager settingsManager = null;
+    private SettingsManager settingsManager;
 
     @Override
     public void onCreate() {
@@ -57,7 +57,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         tts = getTts();
 
         // Init speeches list.
-        speeches = new LinkedList<String>();
+        speeches = new LinkedList<>();
 
         // Instantiate the settings manager.
         settingsManager = new SettingsManager(getApplicationContext());
@@ -173,25 +173,25 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         return new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-            tts.setLanguage(Locale.getDefault());
-            tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
-            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override
-                public void onStart(String utteranceId) {
+                tts.setLanguage(Locale.getDefault());
+                tts.setSpeechRate(settingsManager.getPlayMediaSpeed());
+                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onStart(String utteranceId) {
 
-                }
+                    }
 
-                @Override
-                public void onDone(String utteranceId) {
-                    // Abandon focus.
-                    am.abandonAudioFocus(afChangeListener);
-                }
+                    @Override
+                    public void onDone(String utteranceId) {
+                        // Abandon focus.
+                        am.abandonAudioFocus(afChangeListener);
+                    }
 
-                @Override
-                public void onError(String utteranceId) {
+                    @Override
+                    public void onError(String utteranceId) {
 
-                }
-            });
+                    }
+                });
             }
         });
     }
@@ -234,7 +234,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 // Speak music notification info.
                 Log.i(TAG, "Speech = " + newSpeech);
-                HashMap<String, String> map = new HashMap<String, String>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
                 tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, map);
             }

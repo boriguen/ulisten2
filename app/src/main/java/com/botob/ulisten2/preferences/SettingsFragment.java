@@ -8,12 +8,11 @@ import com.botob.ulisten2.R;
 /**
  * Created by guenebau on 10/4/15.
  */
-public class SettingsFragment extends PreferenceFragment{
+public class SettingsFragment extends PreferenceFragment {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.preferences);
     }
-
 }

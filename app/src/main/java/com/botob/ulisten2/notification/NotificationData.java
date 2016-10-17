@@ -5,7 +5,7 @@ package com.botob.ulisten2.notification;
  */
 public class NotificationData {
 
-    private static final String TAG = "NotificationData";
+    private static final String TAG = NotificationData.class.getSimpleName();
 
     public String packageName;
     public long postTime;
