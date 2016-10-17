@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -153,10 +154,9 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         }
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+        public void onAttach(Context context) {
+            super.onAttach(context);
+            ((MainActivity) context).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
         }
     }
 }
