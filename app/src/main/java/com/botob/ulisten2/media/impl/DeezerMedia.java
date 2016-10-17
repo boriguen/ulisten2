@@ -8,7 +8,7 @@ import com.botob.ulisten2.notification.NotificationData;
  * from the Deezer notifications.
  *
  * @author boris
- * @date   10/16/16
+ * @date 10/16/16
  */
 public class DeezerMedia extends AbstractMedia {
 
@@ -30,5 +30,4 @@ public class DeezerMedia extends AbstractMedia {
     protected CharSequence fetchArtist(NotificationData notificationData) {
         return notificationData.messageTextLines[0];
     }
-
 }

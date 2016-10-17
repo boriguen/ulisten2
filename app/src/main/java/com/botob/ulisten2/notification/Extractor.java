@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * extract relevant information.
  *
  * @author boriguen
- * @date   11/17/14
+ * @date 11/17/14
  */
 public class Extractor {
     /**
@@ -68,7 +68,7 @@ public class Extractor {
      * @param context               the context to access views from.
      * @param statusBarNotification the notification to extract text from.
      * @param data                  the notification data instance to fill in.
-     * @return                      the filled in notification data instance.
+     * @return the filled in notification data instance.
      */
     private NotificationData loadTexts(Context context, StatusBarNotification statusBarNotification, NotificationData data) {
         final Bundle extras = getExtras(statusBarNotification);
@@ -275,5 +275,4 @@ public class Extractor {
             return list;
         }
     }
-
 }

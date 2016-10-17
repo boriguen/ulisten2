@@ -2,7 +2,7 @@ package com.botob.ulisten2.media;
 
 /**
  * @author boriguen
- * @date   12/9/14
+ * @date 12/9/14
  */
 public enum MediaApp {
 
@@ -13,6 +13,7 @@ public enum MediaApp {
     SPOTIFY("com.spotify.music");
 
     String packageName = null;
+
     MediaApp(String packageName) {
         this.packageName = packageName;
     }
@@ -25,5 +26,4 @@ public enum MediaApp {
     public String toString() {
         return this.packageName;
     }
-
 }

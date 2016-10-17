@@ -8,7 +8,7 @@ import com.botob.ulisten2.notification.NotificationData;
  * from the Spotify notifications.
  *
  * @author boris
- * @date   10/16/16
+ * @date 10/16/16
  */
 public class SpotifyMedia extends AbstractMedia {
 
@@ -30,5 +30,4 @@ public class SpotifyMedia extends AbstractMedia {
     protected CharSequence fetchArtist(NotificationData notificationData) {
         return notificationData.messageTextLines[1];
     }
-
 }

@@ -9,12 +9,11 @@ import com.botob.ulisten2.notification.NotificationData;
 
 /**
  * @author boriguen
- * @date   10/16/16
+ * @date 10/16/16
  */
 public class MediaFactory {
 
     private MediaFactory() {
-
     }
 
     public static Media createMedia(NotificationData notificationData) {
@@ -34,5 +33,4 @@ public class MediaFactory {
 
         return media;
     }
-
 }

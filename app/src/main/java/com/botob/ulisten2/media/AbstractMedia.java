@@ -50,5 +50,4 @@ public abstract class AbstractMedia implements Media {
     protected abstract CharSequence fetchAlbum(NotificationData notificationData);
 
     protected abstract CharSequence fetchArtist(NotificationData notificationData);
-
 }

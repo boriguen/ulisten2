@@ -16,5 +16,4 @@ public interface Media {
     String getPackageName();
 
     boolean isRelevant();
-
 }

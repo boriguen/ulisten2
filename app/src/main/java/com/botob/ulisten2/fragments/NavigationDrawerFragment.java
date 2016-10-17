@@ -1,6 +1,5 @@
 package com.botob.ulisten2.fragments;
 
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
