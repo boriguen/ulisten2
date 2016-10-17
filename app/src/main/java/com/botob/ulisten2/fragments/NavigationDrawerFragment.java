@@ -1,7 +1,6 @@
 package com.botob.ulisten2.fragments;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -128,7 +127,12 @@ public class NavigationDrawerFragment extends Fragment {
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
-        mDrawerToggle = new ActionBarDrawerToggle(getActivity(), mDrawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(
+                getActivity(),                      /* host Activity */
+                mDrawerLayout,                      /* DrawerLayout object */
+                R.string.navigation_drawer_open,    /* "open drawer" description for accessibility */
+                R.string.navigation_drawer_close    /* "close drawer" description for accessibility */
+        ) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
