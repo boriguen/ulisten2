@@ -26,10 +26,11 @@ import java.util.ArrayList;
  * @date 11/17/14
  */
 public class Extractor {
+    
     /**
      * The tag to use for logging.
      */
-    private static final String TAG = "Extractor";
+    private static final String TAG = Extractor.class.getSimpleName();
 
     /**
      * Removes all kinds of multiple spaces from given string.
