@@ -21,7 +21,6 @@ import com.botob.ulisten2.notification.NotificationData;
 import com.botob.ulisten2.preferences.SettingsManager;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -234,12 +233,9 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 // Speak music notification info.
                 Log.i(TAG, "Speech = " + newSpeech);
-                HashMap<String, String> map = new HashMap<>();
-                map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "UniqueID");
-                tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, map);
+                tts.speak(newSpeech, TextToSpeech.QUEUE_FLUSH, null, "UniqueID");
             }
         }
-
     }
 
     AudioManager.OnAudioFocusChangeListener audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
