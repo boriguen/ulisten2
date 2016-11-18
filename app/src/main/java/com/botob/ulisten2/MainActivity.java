@@ -4,27 +4,46 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.botob.ulisten2.fragments.NavigationDrawerFragment;
 import com.botob.ulisten2.preferences.SettingsActivity;
-import com.botob.ulisten2.preferences.SettingsManager;
 import com.botob.ulisten2.services.MediaNotificationListenerService;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     private static final int REQUEST_SETTINGS = 0;
     private static final int REQUEST_NOTIFICATION_ACCESS = 1;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Toast.makeText(getBaseContext(), R.string.service_connected, Toast.LENGTH_SHORT);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Toast.makeText(getBaseContext(), R.string.service_disconnected, Toast.LENGTH_SHORT);
+        }
+    };
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -36,22 +55,17 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
      */
     private CharSequence mTitle;
 
-    private SettingsManager settingsManager;
-
     private Switch serviceStateSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize settings manager.
-        settingsManager = new SettingsManager(getApplicationContext());
-
         setContentView(R.layout.activity_main);
 
         // Initialize service state switch component.
         serviceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
-        serviceStateSwitch.setChecked(MediaNotificationListenerService.isNotificationAccessEnabled);
+        serviceStateSwitch.setChecked(isListenerEnabled());
         serviceStateSwitch.setOnCheckedChangeListener(this);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -64,6 +78,11 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
                 (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
+    private boolean isListenerEnabled() {
+        return NotificationManagerCompat.getEnabledListenerPackages(getApplicationContext())
+                .contains(getPackageName());
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -71,25 +90,32 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (!isChecked && MediaNotificationListenerService.isNotificationAccessEnabled ||
-                isChecked && !MediaNotificationListenerService.isNotificationAccessEnabled) {
+        if (!isListenerEnabled() && isChecked) {
             startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
                     REQUEST_NOTIFICATION_ACCESS);
+        } else {
+            updateServiceState(isChecked);
         }
     }
 
     private void updateServiceState(boolean enabled) {
+        Intent intent = new Intent(MainActivity.this, MediaNotificationListenerService.class);
         if (enabled) {
-            startService(new Intent(MainActivity.this, MediaNotificationListenerService.class));
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE);
         } else {
-            stopService(new Intent(MainActivity.this, MediaNotificationListenerService.class));
+            try {
+                unbindService(serviceConnection);
+                stopService(intent);
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, e.getMessage());
+            }
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
-            serviceStateSwitch.setChecked(MediaNotificationListenerService.isNotificationAccessEnabled);
+            serviceStateSwitch.setChecked(isListenerEnabled());
         }
     }
 

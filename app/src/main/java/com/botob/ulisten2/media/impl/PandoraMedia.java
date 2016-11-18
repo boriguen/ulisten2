@@ -19,7 +19,7 @@ public class PandoraMedia extends AbstractMedia {
 
     @Override
     protected CharSequence fetchAlbum(NotificationData notificationData) {
-        return notificationData.messageTextLines[1];
+        return null;
     }
 
     @Override

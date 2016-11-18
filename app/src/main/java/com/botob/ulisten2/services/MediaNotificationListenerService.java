@@ -26,16 +26,12 @@ import java.util.List;
 import java.util.Locale;
 
 public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    public static boolean isNotificationAccessEnabled = false;
-
     private static final String TAG = MediaNotificationListenerService.class.getSimpleName();
 
-    private AudioManager am;
+    private AudioManager audioManager;
 
     private TextToSpeech tts;
 
-    private Runnable runnable;
     private Handler handler;
 
     private List<String> speeches;
@@ -47,9 +43,44 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     @Override
     public void onCreate() {
         super.onCreate();
+        initialize();
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        clear();
+    }
+
+    @Override
+    public IBinder onBind(Intent mIntent) {
+        Log.i(TAG, "onBind");
+        return super.onBind(mIntent);
+    }
+
+    @Override
+    public boolean onUnbind(Intent mIntent) {
+        Log.i(TAG, "onUnbind");
+        clear();
+        return true;
+    }
+
+    @Override
+    public void onRebind(Intent mIntent) {
+        super.onRebind(mIntent);
+        initialize();
+        Log.i(TAG, "onRebind");
+    }
+
+    private void initialize() {
         // Init audio manager.
-        am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
         // Init tts.
         tts = getTts();
@@ -70,35 +101,27 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         handler.post(createProcessActiveNotificationsRunnable());
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // Clear audio.
-        am = null;
-        audioFocusChangeListener = null;
-
-        // Clear TTS.
-        tts.shutdown();
-        tts = null;
-
+    private void clear() {
         // Clear runnable.
         cancelPlayMedia();
 
-        // Unregister this service from listening to preference changes.
-        settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-    }
+        if (tts != null) {
+            // Clear TTS.
+            tts.shutdown();
+            tts = null;
+        }
 
-    @Override
-    public IBinder onBind(Intent mIntent) {
-        isNotificationAccessEnabled = true;
-        return super.onBind(mIntent);
-    }
+        // Clear audio.
+        if (audioManager != null) {
+            audioManager.abandonAudioFocus(audioFocusChangeListener);
+            audioManager = null;
+            audioFocusChangeListener = null;
+        }
 
-    @Override
-    public boolean onUnbind(Intent mIntent) {
-        isNotificationAccessEnabled = false;
-        return super.onUnbind(mIntent);
+        if (settingsManager != null) {
+            // Unregister this service from listening to preference changes.
+            settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+        }
     }
 
     @Override
@@ -183,7 +206,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
                     @Override
                     public void onDone(String utteranceId) {
                         // Abandon focus.
-                        am.abandonAudioFocus(audioFocusChangeListener);
+                        audioManager.abandonAudioFocus(audioFocusChangeListener);
                     }
 
                     @Override
@@ -196,14 +219,17 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     }
 
     private void playMediaAsync() {
-        runnable = createPlayRunnable();
-        handler.postDelayed(runnable, settingsManager.getPlayMediaDelayInMilliseconds());
+        if (handler == null) {
+            handler = new Handler();
+        }
+        handler.postDelayed(createPlayRunnable(), settingsManager.getPlayMediaDelayInMilliseconds());
     }
 
     private void cancelPlayMedia() {
-        // Cancel previous task if applicable.
-        if (handler != null && runnable != null) {
-            handler.removeCallbacks(runnable);
+        // Cancel previous tasks if applicable.
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+            handler = null;
         }
     }
 
@@ -212,19 +238,21 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             @Override
             public void run() {
                 playMedia();
-                handler.postDelayed(this, settingsManager.getPlayMediaIntervalInMilliseconds());
+                if (handler != null) {
+                    handler.postDelayed(this, settingsManager.getPlayMediaIntervalInMilliseconds());
+                }
             }
         };
     }
 
     private void playMedia() {
-        if (currentMedia != null && currentMedia.isRelevant()) {
+        if (handler != null && currentMedia != null && currentMedia.isRelevant()) {
             // Prepare speech.
             String newSpeech = String.format("You listen to %s by %s", currentMedia.getTitle(), currentMedia.getArtist());
             speeches.add(newSpeech);
 
             // Request audio focus for playback
-            int result = am.requestAudioFocus(audioFocusChangeListener,
+            int result = audioManager.requestAudioFocus(audioFocusChangeListener,
                     // Use the notification stream.
                     AudioManager.STREAM_NOTIFICATION,
                     // Request audio focus.
