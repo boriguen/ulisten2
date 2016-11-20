@@ -19,29 +19,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import com.botob.ulisten2.fragments.NavigationDrawerFragment;
 import com.botob.ulisten2.preferences.SettingsActivity;
+import com.botob.ulisten2.preferences.SettingsManager;
 import com.botob.ulisten2.services.MediaNotificationListenerService;
-
-import static android.content.ContentValues.TAG;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
+    /**
+     * The tag to use for logging.
+     */
+    private static final String TAG = MainActivity.class.getSimpleName();
 
+    /**
+     * The code used when requesting settings.
+     */
     private static final int REQUEST_SETTINGS = 0;
+
+    /**
+     * The code used when requesting notification access.
+     */
     private static final int REQUEST_NOTIFICATION_ACCESS = 1;
 
+    /**
+     * The service connection used to bind to the MediaNotificationListenerService instance.
+     */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(getBaseContext(), R.string.service_connected, Toast.LENGTH_SHORT);
+            Log.i(TAG, "onServiceConnected - " + name);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(getBaseContext(), R.string.service_disconnected, Toast.LENGTH_SHORT);
+            Log.i(TAG, "onServiceDisconnected - " + name);
         }
     };
 
@@ -55,6 +67,9 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
      */
     private CharSequence mTitle;
 
+    /**
+     * The service state switch component.
+     */
     private Switch serviceStateSwitch;
 
     @Override
@@ -65,8 +80,8 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
         // Initialize service state switch component.
         serviceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
-        serviceStateSwitch.setChecked(isListenerEnabled());
         serviceStateSwitch.setOnCheckedChangeListener(this);
+        serviceStateSwitch.setChecked(new SettingsManager(this).getPlayServiceEnabled());
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -85,6 +100,7 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
 
     @Override
     protected void onDestroy() {
+        tryUnbind();
         super.onDestroy();
     }
 
@@ -94,21 +110,29 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
             startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
                     REQUEST_NOTIFICATION_ACCESS);
         } else {
+            new SettingsManager(this).setPlayServiceEnabled(isChecked);
             updateServiceState(isChecked);
         }
     }
 
     private void updateServiceState(boolean enabled) {
-        Intent intent = new Intent(MainActivity.this, MediaNotificationListenerService.class);
         if (enabled) {
-            bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+            tryBind();
         } else {
-            try {
-                unbindService(serviceConnection);
-                stopService(intent);
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, e.getMessage());
-            }
+            tryUnbind();
+        }
+    }
+
+    private void tryBind() {
+        Intent intent = new Intent(MainActivity.this, MediaNotificationListenerService.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    private void tryUnbind() {
+        try {
+            unbindService(serviceConnection);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Could not unbind notification listener service: " + e);
         }
     }
 
@@ -116,6 +140,8 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
             serviceStateSwitch.setChecked(isListenerEnabled());
+            // Call update state explicitly.
+            updateServiceState(isListenerEnabled());
         }
     }
 

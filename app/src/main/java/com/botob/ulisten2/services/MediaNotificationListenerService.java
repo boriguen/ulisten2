@@ -25,7 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public class MediaNotificationListenerService extends NotificationListenerService implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MediaNotificationListenerService extends NotificationListenerService
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = MediaNotificationListenerService.class.getSimpleName();
 
     private AudioManager audioManager;
@@ -43,32 +44,25 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     @Override
     public void onCreate() {
         super.onCreate();
-        initialize();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy");
         super.onDestroy();
-        clear();
     }
 
     @Override
     public IBinder onBind(Intent mIntent) {
         Log.i(TAG, "onBind");
+        initialize();
         return super.onBind(mIntent);
-    }
-
-    @Override
-    public boolean onUnbind(Intent mIntent) {
-        Log.i(TAG, "onUnbind");
-        clear();
-        return true;
     }
 
     @Override
@@ -78,49 +72,61 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         Log.i(TAG, "onRebind");
     }
 
+    @Override
+    public boolean onUnbind(Intent mIntent) {
+        Log.i(TAG, "onUnbind");
+        clear();
+        return true;
+    }
+
     private void initialize() {
-        // Init audio manager.
-        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if (new SettingsManager(this).getPlayServiceEnabled()) {
+            // Init audio manager.
+            audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
-        // Init tts.
-        tts = getTts();
+            // Init tts.
+            tts = getTts();
 
-        // Init speeches list.
-        speeches = new LinkedList<>();
+            // Init speeches list.
+            speeches = new LinkedList<>();
 
-        // Instantiate the settings manager.
-        settingsManager = new SettingsManager(getApplicationContext());
+            // Instantiate the settings manager.
+            settingsManager = new SettingsManager(getApplicationContext());
 
-        // Register this service to listen to preference changes.
-        settingsManager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+            // Register this service to listen to preference changes.
+            settingsManager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-        // Instantiate the handler.
-        handler = new Handler();
+            // Instantiate the handler.
+            handler = new Handler();
 
-        // Check for ongoing relevant notifications.
-        handler.post(createProcessActiveNotificationsRunnable());
+            // Check for ongoing relevant notifications.
+            handler.post(createProcessActiveNotificationsRunnable());
+        }
     }
 
     private void clear() {
-        // Clear runnable.
-        cancelPlayMedia();
+        if (!new SettingsManager(this).getPlayServiceEnabled()) {
+            // Clear runnable.
+            cancelPlayMedia();
 
-        if (tts != null) {
-            // Clear TTS.
-            tts.shutdown();
-            tts = null;
-        }
+            if (tts != null) {
+                // Clear TTS.
+                tts.stop();
+                tts.shutdown();
+                tts = null;
+            }
 
-        // Clear audio.
-        if (audioManager != null) {
-            audioManager.abandonAudioFocus(audioFocusChangeListener);
-            audioManager = null;
-            audioFocusChangeListener = null;
-        }
+            // Clear audio.
+            if (audioManager != null) {
+                audioManager.abandonAudioFocus(audioFocusChangeListener);
+                audioManager = null;
+                audioFocusChangeListener = null;
+            }
 
-        if (settingsManager != null) {
-            // Unregister this service from listening to preference changes.
-            settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            if (settingsManager != null) {
+                // Unregister this service from listening to preference changes.
+                settingsManager.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            }
         }
     }
 

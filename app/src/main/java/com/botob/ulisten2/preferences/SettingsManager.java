@@ -52,13 +52,13 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
     }
 
     public boolean getPlayServiceEnabled() {
-        return sharedPreferences.getBoolean(PLAY_SERVICE_ENABLED, true);
+        return sharedPreferences.getBoolean(PLAY_SERVICE_ENABLED, false);
     }
 
     public void setPlayServiceEnabled(boolean enabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(PLAY_SERVICE_ENABLED, enabled);
-        editor.commit();
+        editor.apply();
     }
 
     @Override
