@@ -7,6 +7,10 @@ import com.botob.ulisten2.notification.NotificationData;
  */
 public abstract class AbstractMedia implements Media {
 
+    private static final String[] AD_KEYWORDS = new String[]{
+            "advertisement"
+    };
+
     private NotificationData notificationData;
     private CharSequence title;
     private CharSequence album;
@@ -20,7 +24,15 @@ public abstract class AbstractMedia implements Media {
     }
 
     public boolean isRelevant() {
-        return getTitle() != null && getArtist() != null;
+        return getTitle() != null && getArtist() != null && !isAd();
+    }
+
+    private boolean isAd() {
+        boolean result = false;
+        for (int i = 0; i < AD_KEYWORDS.length && !result; i++) {
+            result = AD_KEYWORDS[i].equalsIgnoreCase(getTitle());
+        }
+        return result;
     }
 
     public String getTitle() {

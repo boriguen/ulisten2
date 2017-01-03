@@ -1,6 +1,5 @@
 package com.botob.ulisten2;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -43,12 +42,25 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     private static final int REQUEST_NOTIFICATION_ACCESS = 1;
 
     /**
+     * The notification listener service to interact with.
+     */
+    private MediaNotificationListenerService mNotificationListenerService;
+
+    /**
      * The service connection used to bind to the MediaNotificationListenerService instance.
      */
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.i(TAG, "onServiceConnected - " + name);
+            MediaNotificationListenerService.LocalBinder localBinder =
+                    (MediaNotificationListenerService.LocalBinder) service;
+            mNotificationListenerService = localBinder.getServiceInstance();
+            if (mSettingsManager.getPlayServiceEnabled()) {
+                mNotificationListenerService.resume();
+            } else {
+                mNotificationListenerService.pause();
+            }
         }
 
         @Override
@@ -58,44 +70,36 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     };
 
     /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     * The settings manager instance to get and set preferences.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
+    private SettingsManager mSettingsManager;
 
     /**
      * The service state switch component.
      */
-    private Switch serviceStateSwitch;
+    private Switch mServiceStateSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Instantiate the settings.
+        mSettingsManager = new SettingsManager(this);
+
+        // Set the main view.
         setContentView(R.layout.activity_main);
 
         // Initialize service state switch component.
-        serviceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
-        serviceStateSwitch.setOnCheckedChangeListener(this);
-        serviceStateSwitch.setChecked(new SettingsManager(this).getPlayServiceEnabled());
+        mServiceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
+        mServiceStateSwitch.setChecked(mSettingsManager.getPlayServiceEnabled());
+        mServiceStateSwitch.setOnCheckedChangeListener(this);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
+        NavigationDrawerFragment navigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
+        navigationDrawerFragment.setUp(R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-    }
-
-    private boolean isListenerEnabled() {
-        return NotificationManagerCompat.getEnabledListenerPackages(getApplicationContext())
-                .contains(getPackageName());
     }
 
     @Override
@@ -110,27 +114,37 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
             startActivityForResult(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
                     REQUEST_NOTIFICATION_ACCESS);
         } else {
-            new SettingsManager(this).setPlayServiceEnabled(isChecked);
             updateServiceState(isChecked);
         }
     }
 
+    private boolean isListenerEnabled() {
+        return NotificationManagerCompat.getEnabledListenerPackages(getApplicationContext())
+                .contains(getPackageName());
+    }
+
     private void updateServiceState(boolean enabled) {
-        if (enabled) {
-            tryBind();
+        Log.i(TAG, "Enabling service: " + enabled);
+        mSettingsManager.setPlayServiceEnabled(enabled);
+        if (mNotificationListenerService != null) {
+            if (enabled) {
+                mNotificationListenerService.resume();
+            } else {
+                mNotificationListenerService.pause();
+            }
         } else {
-            tryUnbind();
+            tryBind();
         }
     }
 
     private void tryBind() {
         Intent intent = new Intent(MainActivity.this, MediaNotificationListenerService.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
     private void tryUnbind() {
         try {
-            unbindService(serviceConnection);
+            unbindService(mServiceConnection);
         } catch (IllegalArgumentException e) {
             Log.w(TAG, "Could not unbind notification listener service: " + e);
         }
@@ -139,9 +153,9 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
-            serviceStateSwitch.setChecked(isListenerEnabled());
-            // Call update state explicitly.
-            updateServiceState(isListenerEnabled());
+            mServiceStateSwitch.setChecked(isListenerEnabled());
+            // Set the setting here as state switch listener is not triggered.
+            mSettingsManager.setPlayServiceEnabled(isListenerEnabled());
         }
     }
 
@@ -164,16 +178,8 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.drawer_title_section1);
                 break;
         }
-    }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
     }
 
     /**
@@ -201,8 +207,8 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
+            return inflater.inflate(R.layout.fragment_main, container, false);
+
         }
 
         @Override
