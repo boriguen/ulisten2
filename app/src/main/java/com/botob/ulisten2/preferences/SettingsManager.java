@@ -30,7 +30,7 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
 
     public int getPlayMediaDelayInMilliseconds() {
         if (delay < 0) {
-            delay = Integer.parseInt(sharedPreferences.getString(PLAY_MEDIA_DELAY, "3"));
+            delay = sharedPreferences.getInt(PLAY_MEDIA_DELAY, 3);
             delay *= 1000;
         }
         return delay;
@@ -38,7 +38,7 @@ public class SettingsManager implements SharedPreferences.OnSharedPreferenceChan
 
     public int getPlayMediaIntervalInMilliseconds() {
         if (interval < 0) {
-            interval = Integer.parseInt(sharedPreferences.getString(PLAY_MEDIA_INTERVAL, "30"));
+            interval = sharedPreferences.getInt(PLAY_MEDIA_INTERVAL, 30);
             interval *= 1000;
         }
         return interval;

@@ -13,36 +13,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <GridLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:columnCount="1"
-            android:rowCount="2">
+            android:divider="@drawable/horizontal_separator"
+            android:orientation="vertical"
+            android:rowCount="2"
+            android:showDividers="middle">
 
             <Switch
+                android:id="@+id/switch_service_state"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Play Media Info"
-                android:id="@+id/switch_service_state"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/activity_horizontal_margin"
                 android:checked="false"
-                android:enabled="true" />
+                android:enabled="true"
+                android:text="@string/main_activity_play_media_info" />
 
             <ListView
+                android:id="@+id/listView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/listView"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/switch_service_state"
                 android:choiceMode="none"
-                android:scrollingCache="true"
-                android:smoothScrollbar="true"
-                android:footerDividersEnabled="false"
+                android:fastScrollAlwaysVisible="true"
                 android:fastScrollEnabled="true"
-                android:fastScrollAlwaysVisible="true" />
-        </GridLayout>
+                android:footerDividersEnabled="false"
+                android:scrollingCache="true"
+                android:smoothScrollbar="true" />
+        </LinearLayout>
 
     </FrameLayout>
 

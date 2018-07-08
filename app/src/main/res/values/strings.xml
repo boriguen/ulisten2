@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UListen2</string>
+    <string name="app_name">ulisten2</string>
     <string name="action_settings">Settings</string>
-    <string name="service_name">UListen2</string>
+    <string name="service_name">ulisten2</string>
+
+    <string name="main_activity_play_media_info">Play media info</string>
 
     <string name="preference_play_media_category">Play media info</string>
     <string name="preference_play_media_delay">Delayed of (in seconds)</string>
