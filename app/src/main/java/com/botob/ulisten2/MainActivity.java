@@ -3,26 +3,35 @@ package com.botob.ulisten2;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.Switch;
 
 import com.botob.ulisten2.fragments.NavigationDrawerFragment;
+import com.botob.ulisten2.media.Media;
+import com.botob.ulisten2.media.MediaArrayAdapter;
+import com.botob.ulisten2.media.impl.FakeMedia;
 import com.botob.ulisten2.preferences.SettingsActivity;
 import com.botob.ulisten2.preferences.SettingsManager;
 import com.botob.ulisten2.services.MediaNotificationListenerService;
+
+import java.util.ArrayList;
 
 public class MainActivity extends Activity implements CompoundButton.OnCheckedChangeListener,
         NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -30,6 +39,16 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
      * The tag to use for logging.
      */
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    /**
+     * The broadcast media action key.
+     */
+    public static final String ACTION_BROADCAST_MEDIA = "com.botob.ulisten2.action.media";
+
+    /**
+     * The broadcast media extra key.
+     */
+    public static final String EXTRA_BROADCAST_MEDIA = "com.botob.ulisten2.extra.media";
 
     /**
      * The code used when requesting settings.
@@ -40,6 +59,11 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
      * The code used when requesting notification access.
      */
     private static final int REQUEST_NOTIFICATION_ACCESS = 1;
+
+    /**
+     * The broadcast receiver handling media objects.
+     */
+    private MediaBroadcastReceiver mBroadcastReceiver;
 
     /**
      * The notification listener service to interact with.
@@ -75,9 +99,19 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
     private SettingsManager mSettingsManager;
 
     /**
+     * The adapter to control the media.
+     */
+    private MediaArrayAdapter mMediaArrayAdapter;
+
+    /**
      * The service state switch component.
      */
     private Switch mServiceStateSwitch;
+
+    /**
+     * The list view showing the played media.
+     */
+    private ListView mPlayedMediaListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,20 +124,47 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         setContentView(R.layout.activity_main);
 
         // Initialize service state switch component.
-        mServiceStateSwitch = (Switch) findViewById(R.id.switch_service_state);
+        mServiceStateSwitch = findViewById(R.id.switch_service_state);
         mServiceStateSwitch.setChecked(mSettingsManager.getPlayServiceEnabled());
         mServiceStateSwitch.setOnCheckedChangeListener(this);
+
+        // Initialize the media list.
+        mMediaArrayAdapter = new MediaArrayAdapter(this, new ArrayList<Media>());
+        mPlayedMediaListView = findViewById(R.id.list_played_media);
+        mPlayedMediaListView.setAdapter(mMediaArrayAdapter);
+        final long timestamp = System.currentTimeMillis();
+        final String packageName = getApplicationContext().getPackageName();
+        mMediaArrayAdapter.insert(new FakeMedia("Hey yo", "", "Dorris Allan", timestamp, packageName), 0);
+        mMediaArrayAdapter.insert(new FakeMedia("What to eat tonight?", "", "Mark Sanders", timestamp, packageName), 0);
+        mMediaArrayAdapter.insert(new FakeMedia("Jogo bonito", "", "Nike Soccer", timestamp, packageName), 0);
 
         NavigationDrawerFragment navigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
         // Set up the drawer.
-        navigationDrawerFragment.setUp(R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        navigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Setup the broadcast receiver.
+        mBroadcastReceiver = new MediaBroadcastReceiver();
+        registerMediaBroadcastReceiver();
+    }
+
+    /**
+     * Registers an action to BroadCastReceiver.
+     */
+    private void registerMediaBroadcastReceiver() {
+        try {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ACTION_BROADCAST_MEDIA);
+            LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     @Override
     protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
         tryUnbind();
         super.onDestroy();
     }
@@ -179,6 +240,20 @@ public class MainActivity extends Activity implements CompoundButton.OnCheckedCh
         switch (number) {
             case 1:
                 break;
+        }
+    }
+
+    /**
+     * MediaBroadCastReceiver handles the media broadcasts.
+     */
+    class MediaBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                mMediaArrayAdapter.insert((Media) intent.getParcelableExtra(EXTRA_BROADCAST_MEDIA), 0);
+            } catch (Exception e) {
+                Log.e(TAG, e.toString());
+            }
         }
     }
 

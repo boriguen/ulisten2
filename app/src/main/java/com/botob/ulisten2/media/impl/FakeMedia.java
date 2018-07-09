@@ -7,40 +7,41 @@ import com.botob.ulisten2.media.MediaApp;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
- * GooglePlayMusicMedia is the class extending AbstractMedia responsible for extracting the media information
- * from the Google Play Music notifications.
- *
- * @author boriguen
- * @date 10/16/16
+ * @author boris on 7/8/18.
  */
-public class GooglePlayMusicMedia extends AbstractMedia {
+public class FakeMedia extends AbstractMedia {
 
-    public GooglePlayMusicMedia(NotificationData notificationData) {
+    public FakeMedia(NotificationData notificationData) {
         super(notificationData);
     }
 
-    public GooglePlayMusicMedia(final Parcel parcel) {
+    public FakeMedia(final Parcel parcel) {
         super(parcel);
+    }
+
+    public FakeMedia(final String title, final String album, final String artist,
+                     final long timestamp, final String packageName) {
+        super(title, album, artist, timestamp, packageName);
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(MediaApp.GOOGLE_PLAY_MUSIC.name());
+        out.writeString(MediaApp.FAKE.name());
         super.writeToParcel(out, flags);
     }
 
     @Override
     protected String fetchTitle(NotificationData notificationData) {
-        return notificationData.titleText.toString();
+        throw new UnsupportedOperationException("It is just a fake.");
     }
 
     @Override
     protected String fetchAlbum(NotificationData notificationData) {
-        return notificationData.subText.toString();
+        throw new UnsupportedOperationException("It is just a fake.");
     }
 
     @Override
     protected String fetchArtist(NotificationData notificationData) {
-        return notificationData.messageText.toString();
+        throw new UnsupportedOperationException("It is just a fake.");
     }
 }

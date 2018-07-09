@@ -1,6 +1,9 @@
 package com.botob.ulisten2.media.impl;
 
+import android.os.Parcel;
+
 import com.botob.ulisten2.media.AbstractMedia;
+import com.botob.ulisten2.media.MediaApp;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
@@ -12,18 +15,28 @@ public class AndroidMusicMedia extends AbstractMedia {
         super(notificationData);
     }
 
-    @Override
-    protected CharSequence fetchTitle(NotificationData notificationData) {
-        return notificationData.titleText;
+    public AndroidMusicMedia(final Parcel parcel) {
+        super(parcel);
     }
 
     @Override
-    protected CharSequence fetchAlbum(NotificationData notificationData) {
-        return notificationData.messageTextLines[0];
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(MediaApp.ANDROID_MUSIC.name());
+        super.writeToParcel(out, flags);
     }
 
     @Override
-    protected CharSequence fetchArtist(NotificationData notificationData) {
-        return notificationData.messageTextLines[1];
+    protected String fetchTitle(NotificationData notificationData) {
+        return notificationData.titleText.toString();
+    }
+
+    @Override
+    protected String fetchAlbum(NotificationData notificationData) {
+        return notificationData.messageTextLines[0].toString();
+    }
+
+    @Override
+    protected String fetchArtist(NotificationData notificationData) {
+        return notificationData.messageTextLines[1].toString();
     }
 }

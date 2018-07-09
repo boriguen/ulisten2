@@ -1,6 +1,9 @@
 package com.botob.ulisten2.media.impl;
 
+import android.os.Parcel;
+
 import com.botob.ulisten2.media.AbstractMedia;
+import com.botob.ulisten2.media.MediaApp;
 import com.botob.ulisten2.notification.NotificationData;
 
 /**
@@ -12,18 +15,28 @@ public class PandoraMedia extends AbstractMedia {
         super(notificationData);
     }
 
-    @Override
-    protected CharSequence fetchTitle(NotificationData notificationData) {
-        return notificationData.titleText;
+    public PandoraMedia(final Parcel parcel) {
+        super(parcel);
     }
 
     @Override
-    protected CharSequence fetchAlbum(NotificationData notificationData) {
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(MediaApp.PANDORA.name());
+        super.writeToParcel(out, flags);
+    }
+
+    @Override
+    protected String fetchTitle(NotificationData notificationData) {
+        return notificationData.titleText.toString();
+    }
+
+    @Override
+    protected String fetchAlbum(NotificationData notificationData) {
         return null;
     }
 
     @Override
-    protected CharSequence fetchArtist(NotificationData notificationData) {
-        return notificationData.messageTextLines[0];
+    protected String fetchArtist(NotificationData notificationData) {
+        return notificationData.messageTextLines[0].toString();
     }
 }

@@ -1,29 +1,58 @@
 package com.botob.ulisten2.media;
 
+import android.os.Parcel;
+
+import com.botob.ulisten2.media.impl.AndroidMusicMedia;
+import com.botob.ulisten2.media.impl.DeezerMedia;
+import com.botob.ulisten2.media.impl.FakeMedia;
+import com.botob.ulisten2.media.impl.GooglePlayMusicMedia;
+import com.botob.ulisten2.media.impl.PandoraMedia;
+import com.botob.ulisten2.media.impl.SpotifyMedia;
+
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * @author boriguen
  * @date 12/9/14
  */
 public enum MediaApp {
 
-    ANDROID_MUSIC("com.android.music"),
-    DEEZER("deezer.android.app"),
-    GOOGLE_PLAY_MUSIC("com.google.android.music"),
-    PANDORA("com.pandora.android"),
-    SPOTIFY("com.spotify.music");
+    ANDROID_MUSIC("com.android.music", AndroidMusicMedia.class),
+    DEEZER("deezer.android.app", DeezerMedia.class),
+    FAKE("com.botob.ulisten2", FakeMedia.class),
+    GOOGLE_PLAY_MUSIC("com.google.android.music", GooglePlayMusicMedia.class),
+    PANDORA("com.pandora.android", PandoraMedia.class),
+    SPOTIFY("com.spotify.music", SpotifyMedia.class);
 
-    String packageName;
+    private final String mPackageName;
+    private final Class mClass;
 
-    MediaApp(String packageName) {
-        this.packageName = packageName;
+    MediaApp(final String packageName, final Class classs) {
+        mPackageName = packageName;
+        mClass = classs;
+    }
+    
+    @Override
+    public String toString() {
+        return mPackageName;
     }
 
     public String getPackageName() {
-        return packageName;
+        return mPackageName;
     }
 
-    @Override
-    public String toString() {
-        return packageName;
+    /**
+     * Instantiates a Media object from the given parcel.
+     *
+     * @param parcel the parcel from which to create the object.
+     * @return the resulting object.
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     */
+    public Media instantiate(final Parcel parcel) throws NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
+        return (Media) mClass.getConstructor(Parcel.class).newInstance(parcel);
     }
 }

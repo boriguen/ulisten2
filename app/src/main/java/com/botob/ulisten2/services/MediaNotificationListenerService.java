@@ -7,13 +7,16 @@ import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.botob.ulisten2.MainActivity;
 import com.botob.ulisten2.media.Media;
 import com.botob.ulisten2.media.MediaApp;
 import com.botob.ulisten2.media.MediaFactory;
@@ -175,6 +178,12 @@ public class MediaNotificationListenerService extends NotificationListenerServic
                 // Launch the play media thread.
                 cancelPlayMedia();
                 playMediaAsync();
+
+                // Broadcast media.
+                Intent intent = new Intent();
+                intent.setAction(MainActivity.ACTION_BROADCAST_MEDIA);
+                intent.putExtra(MainActivity.EXTRA_BROADCAST_MEDIA, mCurrentMedia);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             }
         }
     }
@@ -212,7 +221,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
 
     private void playMediaAsync() {
         if (mHandler == null) {
-            mHandler = new Handler();
+            mHandler = new Handler(Looper.getMainLooper());
         }
         mHandler.postDelayed(createPlayRunnable(), mSettingsManager.getPlayMediaDelayInMilliseconds());
     }

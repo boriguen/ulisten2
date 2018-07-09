@@ -6,6 +6,7 @@
     <string name="service_name">ulisten2</string>
 
     <string name="main_activity_play_media_info">Play media info</string>
+    <string name="main_activity_media_list_title">History</string>
 
     <string name="preference_play_media_category">Play media info</string>
     <string name="preference_play_media_delay">Delayed of (in seconds)</string>
