@@ -18,4 +18,6 @@ public interface Media extends Parcelable {
     String getPackageName();
 
     boolean isRelevant();
+
+    boolean isAd();
 }

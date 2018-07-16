@@ -91,7 +91,7 @@ public abstract class AbstractMedia implements Media {
         return getTitle() != null && getArtist() != null && !isAd();
     }
 
-    private boolean isAd() {
+    public boolean isAd() {
         boolean result = false;
         for (int i = 0; i < AD_KEYWORDS.length && !result; i++) {
             result = AD_KEYWORDS[i].equalsIgnoreCase(getTitle());

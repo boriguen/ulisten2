@@ -2,6 +2,7 @@ package com.botob.ulisten2.media;
 
 import com.botob.ulisten2.media.impl.AndroidMusicMedia;
 import com.botob.ulisten2.media.impl.DeezerMedia;
+import com.botob.ulisten2.media.impl.FakeMedia;
 import com.botob.ulisten2.media.impl.GooglePlayMusicMedia;
 import com.botob.ulisten2.media.impl.PandoraMedia;
 import com.botob.ulisten2.media.impl.SpotifyMedia;
@@ -29,6 +30,8 @@ public class MediaFactory {
             media = new PandoraMedia(notificationData);
         } else if (notificationData.packageName.equals(MediaApp.SPOTIFY.toString())) {
             media = new SpotifyMedia(notificationData);
+        } else if (notificationData.packageName.equals(MediaApp.FAKE.toString())) {
+            media = new FakeMedia(notificationData);
         }
 
         return media;

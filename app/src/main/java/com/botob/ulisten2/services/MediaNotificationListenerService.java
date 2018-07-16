@@ -12,6 +12,7 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -72,8 +73,8 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     @Override
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind");
+        resume();
         if (SERVICE_INTERFACE.equals(intent.getAction())) {
-            resume();
             return super.onBind(intent);
         } else {
             return new LocalBinder();
@@ -96,9 +97,6 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         if (!isInitialized()) {
             // Initialize tts.
             mTts = getTts();
-
-            // Instantiate the handler.
-            mHandler = new Handler();
         }
         // Process active notification.
         processActiveStatusBarNotifications();
@@ -108,19 +106,25 @@ public class MediaNotificationListenerService extends NotificationListenerServic
         return mHandler != null;
     }
 
-    public void pause() {
-        // Clear runnable.
-        cancelPlayMedia();
+    private Handler getHandler() {
+        if (mHandler == null) {
+            mHandler = new Handler(Looper.getMainLooper());
+        }
+        return mHandler;
+    }
 
+    public void pause() {
+        cancelPlayMedia();
+        clearTts();
+        clearAudioManager();
+    }
+
+    private void clearTts() {
         if (mTts != null) {
-            // Clear TTS.
             mTts.stop();
             mTts.shutdown();
             mTts = null;
         }
-
-        // Clear audio.
-        clearAudioManager();
     }
 
     @Override
@@ -141,51 +145,50 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     }
 
     private void processActiveStatusBarNotifications() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                StatusBarNotification[] activeNotifications = getActiveNotifications();
-                if (activeNotifications != null) {
-                    for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
-                        processStatusBarNotification(statusBarNotification);
-                    }
-                }
+        StatusBarNotification[] activeNotifications = getActiveNotifications();
+        if (activeNotifications != null) {
+            for (StatusBarNotification statusBarNotification : getActiveNotifications()) {
+                processStatusBarNotification(statusBarNotification);
             }
-        });
+        }
     }
 
     private void processStatusBarNotification(StatusBarNotification statusBarNotification) {
         if (isPackageRelevant(statusBarNotification)) {
-            // Extract text info.
-            Extractor extractor = new Extractor();
+            final Extractor extractor = new Extractor();
             NotificationData notificationData = extractor.load(getApplicationContext(), statusBarNotification, new NotificationData());
-
-            // Format notification info.
-            String notificationInBrief = String.format(Locale.US, "{id: %d, time: %d, package: %s, Big title: %s, title: %s, " +
-                            "summary: %s, info: %s, sub: %s, message: %s, message lines: %s}",
-                    statusBarNotification.getId(), statusBarNotification.getPostTime(),
-                    statusBarNotification.getPackageName(), notificationData.titleBigText,
-                    notificationData.titleText, notificationData.summaryText, notificationData.infoText,
-                    notificationData.subText, notificationData.messageText, TextUtils.concat(notificationData.messageTextLines));
-            Log.i(TAG, notificationInBrief);
+            logNotificationData(statusBarNotification, notificationData);
 
             // Generate related media.
-            Media media = MediaFactory.createMedia(notificationData);
-            if (media != null && media.isRelevant() && !media.equals(mCurrentMedia)) {
-                // Update current media.
-                mCurrentMedia = media;
-
-                // Launch the play media thread.
+            final Media media = MediaFactory.createMedia(notificationData);
+            if (media != null && !media.equals(mCurrentMedia)) {
                 cancelPlayMedia();
+                if (media.isRelevant()) {
+                    mCurrentMedia = media;
+                    playMediaAsync();
+                    broadcastMedia(mCurrentMedia);
+                }
+            } else if (!isInitialized()) { // After service got stopped and started while same song is on.
                 playMediaAsync();
-
-                // Broadcast media.
-                Intent intent = new Intent();
-                intent.setAction(MainActivity.ACTION_BROADCAST_MEDIA);
-                intent.putExtra(MainActivity.EXTRA_BROADCAST_MEDIA, mCurrentMedia);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             }
         }
+    }
+
+    private void logNotificationData(final StatusBarNotification statusBarNotification, final NotificationData notificationData) {
+        String notificationInBrief = String.format(Locale.US, "{id: %d, time: %d, package: %s, Big title: %s, title: %s, " +
+                        "summary: %s, info: %s, sub: %s, message: %s, message lines: %s}",
+                statusBarNotification.getId(), statusBarNotification.getPostTime(),
+                statusBarNotification.getPackageName(), notificationData.titleBigText,
+                notificationData.titleText, notificationData.summaryText, notificationData.infoText,
+                notificationData.subText, notificationData.messageText, TextUtils.concat(notificationData.messageTextLines));
+        Log.i(TAG, notificationInBrief);
+    }
+
+    private void broadcastMedia(final Media media) {
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.ACTION_BROADCAST_MEDIA);
+        intent.putExtra(MainActivity.EXTRA_BROADCAST_MEDIA, media);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private boolean isPackageRelevant(StatusBarNotification statusBarNotification) {
@@ -197,6 +200,10 @@ public class MediaNotificationListenerService extends NotificationListenerServic
             @Override
             public void onInit(int status) {
                 mTts.setLanguage(Locale.getDefault());
+                mTts.setVoice(new Voice("en-us-x-sfg#male_2-local", Locale.US, Voice.QUALITY_VERY_HIGH, Voice.LATENCY_LOW,
+                        false, null));
+                /*mTts.setVoice(new Voice("en-us-x-sfg#female_2-local", Locale.US, Voice.QUALITY_VERY_HIGH, Voice.LATENCY_LOW,
+                        false, null));*/
                 mTts.setSpeechRate(mSettingsManager.getPlayMediaSpeed());
                 mTts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
@@ -220,10 +227,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     }
 
     private void playMediaAsync() {
-        if (mHandler == null) {
-            mHandler = new Handler(Looper.getMainLooper());
-        }
-        mHandler.postDelayed(createPlayRunnable(), mSettingsManager.getPlayMediaDelayInMilliseconds());
+        getHandler().postDelayed(createPlayRunnable(), mSettingsManager.getPlayMediaDelayInMilliseconds());
     }
 
     private void cancelPlayMedia() {
@@ -247,7 +251,7 @@ public class MediaNotificationListenerService extends NotificationListenerServic
     }
 
     private void playMedia() {
-        if (isInitialized() && mCurrentMedia != null && mCurrentMedia.isRelevant()) {
+        if (mCurrentMedia != null && mCurrentMedia.isRelevant()) {
             // Prepare speech.
             String newSpeech = String.format("You listen to %s by %s", mCurrentMedia.getTitle(),
                     mCurrentMedia.getArtist());
