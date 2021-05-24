@@ -1,5 +1,10 @@
 package com.botob.ulisten2.services
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -13,8 +18,10 @@ import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.text.TextUtils
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.botob.ulisten2.MainActivity
+import com.botob.ulisten2.R
 import com.botob.ulisten2.media.*
 import com.botob.ulisten2.notification.Extractor
 import com.botob.ulisten2.notification.NotificationData
@@ -22,7 +29,12 @@ import com.botob.ulisten2.preferences.SettingsManager
 import java.util.*
 
 class MediaNotificationListenerService : NotificationListenerService(), OnSharedPreferenceChangeListener {
-    private var mAudioManager: AudioManager? = null
+    companion object {
+        private val TAG = MediaNotificationListenerService::class.java.simpleName
+
+        private val NOTIFICATION_ACTION_PLAY = "com.botob.ulisten2.action.play"
+        private val NOTIFICATION_ACTION_STOP = "com.botob.ulisten2.action.stop"
+    }
 
     private var currentMedia: Media? = null
 
@@ -66,13 +78,7 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
             }
         }
     }
-    private val audioManager: AudioManager?
-        get() {
-            if (mAudioManager == null) {
-                mAudioManager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
-            }
-            return mAudioManager
-        }
+    private val audioManager: AudioManager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
 
     override fun onCreate() {
         Log.i(TAG, "onCreate")
@@ -86,7 +92,12 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.i(TAG, "onStartCommand")
-        super.onStartCommand(intent, flags, startId)
+
+        when(intent.action) {
+            NOTIFICATION_ACTION_PLAY -> resume()
+            NOTIFICATION_ACTION_STOP -> pause()
+        }
+
         return START_STICKY
     }
 
@@ -117,6 +128,8 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
     }
 
     fun resume() {
+        displayForegroundNotification()
+
         // Process active notification.
         processActiveStatusBarNotifications()
     }
@@ -125,6 +138,8 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
         cancelPlayMedia()
         clearTts()
         clearAudioManager()
+
+        stopForeground(false)
     }
 
     private fun clearTts() {
@@ -144,6 +159,50 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
         if (isPackageRelevant(statusBarNotification)) {
             cancelPlayMedia()
         }
+    }
+
+    private fun displayForegroundNotification() {
+        val channelId = createNotificationChannel()
+
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+
+        val playIntent = getPendingIntent(NOTIFICATION_ACTION_PLAY)
+        val stopIntent = getPendingIntent(NOTIFICATION_ACTION_STOP)
+
+        val notification = NotificationCompat.Builder(this, channelId)
+                .setContentTitle("You listen to...")
+                .setContentText(currentMedia.toString())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentIntent(pendingIntent)
+                .addAction(0, "Play", playIntent)
+                .addAction(0, "Stop", stopIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setWhen(0)
+                .build()
+        startForeground(1001, notification)
+
+    }
+
+    /**
+     * Creates a notification channel for a foreground service.
+     */
+    private fun createNotificationChannel(): String {
+        val channelId = "com.botob.ulisten2.channel.playmedia"
+        val channelName = "UListen2 Play Service"
+        NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE).also {
+            it.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(it)
+        }
+        return channelId
+    }
+
+    private fun getPendingIntent(action: String): PendingIntent {
+        var serviceIntent = Intent(this, MediaNotificationListenerService::class.java).also {
+            it.action = action
+        }
+        return PendingIntent.getService(this, 0, serviceIntent, 0)
     }
 
     private fun processActiveStatusBarNotifications() {
@@ -193,7 +252,7 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
 
     private fun isPackageRelevant(statusBarNotification: StatusBarNotification): Boolean {
         return MediaApp.values().contentToString().contains(statusBarNotification.packageName)
-    }// Abandon focus.
+    }
 
     private fun playMediaAsync() {
         handler.postDelayed(createPlayRunnable(), mSettingsManager.playMediaDelayInMilliseconds.toLong())
@@ -234,11 +293,8 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
     }
 
     private fun clearAudioManager() {
-        if (mAudioManager != null) {
-            mAudioManager!!.abandonAudioFocus(audioFocusChangeListener)
-            mAudioManager = null
-            audioFocusChangeListener = null
-        }
+        audioManager.abandonAudioFocus(audioFocusChangeListener)
+        audioFocusChangeListener = null
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -253,9 +309,5 @@ class MediaNotificationListenerService : NotificationListenerService(), OnShared
     inner class LocalBinder : Binder() {
         val serviceInstance: MediaNotificationListenerService
             get() = this@MediaNotificationListenerService
-    }
-
-    companion object {
-        private val TAG = MediaNotificationListenerService::class.java.simpleName
     }
 }

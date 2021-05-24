@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     /**
      * The notification listener service to interact with.
      */
-    private var mNotificationListenerService: MediaNotificationListenerService? = null
+    private lateinit var mNotificationListenerService: MediaNotificationListenerService
 
     /**
      * The service connection used to bind to the MediaNotificationListenerService instance.
@@ -46,9 +46,9 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
             val localBinder = service as LocalBinder
             mNotificationListenerService = localBinder.serviceInstance
             if (mSettingsManager.playServiceEnabled) {
-                mNotificationListenerService!!.resume()
+                mNotificationListenerService.resume()
             } else {
-                mNotificationListenerService!!.pause()
+                mNotificationListenerService.pause()
             }
         }
 
@@ -148,14 +148,10 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     private fun updateServiceState(enabled: Boolean) {
         Log.i(TAG, "Enabling service: $enabled")
         mSettingsManager.playServiceEnabled = enabled
-        if (mNotificationListenerService != null) {
-            if (enabled) {
-                mNotificationListenerService!!.resume()
-            } else {
-                mNotificationListenerService!!.pause()
-            }
+        if (enabled) {
+            mNotificationListenerService.resume()
         } else {
-            tryBind()
+            mNotificationListenerService.pause()
         }
     }
 
