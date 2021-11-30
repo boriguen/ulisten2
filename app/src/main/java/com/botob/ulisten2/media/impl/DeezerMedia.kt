@@ -13,7 +13,7 @@ import com.botob.ulisten2.notification.NotificationData
  * @date 10/16/16
  */
 class DeezerMedia : AbstractMedia {
-    constructor(notificationData: NotificationData?) : super(notificationData) {}
+    constructor(notificationData: NotificationData) : super(notificationData) {}
     constructor(parcel: Parcel) : super(parcel) {}
 
     override fun writeToParcel(out: Parcel, flags: Int) {
@@ -21,15 +21,11 @@ class DeezerMedia : AbstractMedia {
         super.writeToParcel(out, flags)
     }
 
-    override fun fetchTitle(notificationData: NotificationData?): String? {
-        return notificationData!!.titleText.toString()
+    override fun fetchTitle(notificationData: NotificationData?): String {
+        return notificationData?.titleText.toString()
     }
 
-    override fun fetchAlbum(notificationData: NotificationData?): String? {
-        return null
-    }
-
-    override fun fetchArtist(notificationData: NotificationData?): String? {
-        return notificationData!!.messageTextLines!![0].toString()
+    override fun fetchArtist(notificationData: NotificationData?): String {
+        return notificationData?.messageTextLines!![0].toString()
     }
 }

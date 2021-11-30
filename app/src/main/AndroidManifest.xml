@@ -3,42 +3,46 @@
     package="com.botob.ulisten2"
     android:versionCode="1"
     android:versionName="1.0">
-
     <!-- Needed to be able to get notifications from system. -->
     <permission android:name="android.permission.STATUS_BAR_SERVICE" />
 
-    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light">
+        android:theme="@style/Theme.AppCompat.Light"
+        android:fullBackupContent="false">
         <activity
-            android:name="com.botob.ulisten2.MainActivity"
+            android:name=".MainActivity2"
+            android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.botob.ulisten2.preferences.SettingsActivity"
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".preferences.SettingsActivity"
             android:label="@string/action_settings" />
 
         <service
-            android:name="com.botob.ulisten2.services.MediaNotificationListenerService"
+            android:name=".services.MediaNotificationListenerService"
             android:label="@string/service_name"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>

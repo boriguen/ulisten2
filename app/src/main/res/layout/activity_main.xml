@@ -54,7 +54,7 @@
 
     <!-- The drawer is given a fixed width in dp and extends the full height of
          the container. -->
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navigation_drawer"
         android:name="com.botob.ulisten2.fragments.NavigationDrawerFragment"
         android:layout_width="@dimen/navigation_drawer_width"

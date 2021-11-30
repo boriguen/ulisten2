@@ -13,7 +13,7 @@ import com.botob.ulisten2.notification.NotificationData
  * @date 10/16/16
  */
 class GooglePlayMusicMedia : AbstractMedia {
-    constructor(notificationData: NotificationData?) : super(notificationData) {}
+    constructor(notificationData: NotificationData) : super(notificationData) {}
     constructor(parcel: Parcel) : super(parcel) {}
 
     override fun writeToParcel(out: Parcel, flags: Int) {
@@ -21,15 +21,15 @@ class GooglePlayMusicMedia : AbstractMedia {
         super.writeToParcel(out, flags)
     }
 
-    override fun fetchTitle(notificationData: NotificationData?): String? {
-        return notificationData!!.titleText.toString()
+    override fun fetchTitle(notificationData: NotificationData?): String {
+        return notificationData?.titleText.toString()
     }
 
-    override fun fetchAlbum(notificationData: NotificationData?): String? {
-        return notificationData!!.subText.toString()
+    override fun fetchAlbum(notificationData: NotificationData?): String {
+        return notificationData?.subText.toString()
     }
 
-    override fun fetchArtist(notificationData: NotificationData?): String? {
-        return notificationData!!.messageText.toString()
+    override fun fetchArtist(notificationData: NotificationData?): String {
+        return notificationData?.messageText.toString()
     }
 }

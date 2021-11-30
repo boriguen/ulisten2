@@ -5,7 +5,7 @@
         android:title="@string/preference_play_media_category"
         android:key="pref_play_media">
 
-        <com.botob.ulisten2.preferences.NumberPickerPreference
+        <P
             android:key="pref_play_media_delay"
             android:persistent="true"
             android:title="@string/preference_play_media_delay"

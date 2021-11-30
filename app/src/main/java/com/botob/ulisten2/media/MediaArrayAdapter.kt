@@ -13,8 +13,7 @@ import java.util.*
 
 class MediaArrayAdapter(context: Context, values: List<Media?>?) : ArrayAdapter<Media?>(context, -1, values!!) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val rowView = layoutInflater.inflate(R.layout.list_row_media, parent, false)
+        val rowView = LayoutInflater.from(parent.context).inflate(R.layout.list_row_media, parent, false)
         val media = getItem(position)
         if (media != null) {
             var view = rowView.findViewById<TextView>(R.id.media_title)
