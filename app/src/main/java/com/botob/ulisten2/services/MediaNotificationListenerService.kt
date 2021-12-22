@@ -104,11 +104,9 @@ class MediaNotificationListenerService : NotificationListenerService(),
         when (intent.action) {
             NOTIFICATION_ACTION_PLAY -> {
                 settingsManager.playServiceEnabled = true
-                resume()
             }
             NOTIFICATION_ACTION_STOP -> {
                 settingsManager.playServiceEnabled = false
-                pause()
             }
         }
 
@@ -146,9 +144,6 @@ class MediaNotificationListenerService : NotificationListenerService(),
     }
 
     fun resume() {
-        displayForegroundNotification()
-
-        // Process active notification.
         processActiveStatusBarNotifications()
     }
 
@@ -193,8 +188,8 @@ class MediaNotificationListenerService : NotificationListenerService(),
             .setContentText(if (currentMedia != null) currentMedia?.title.toString() else "")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
-            .addAction(0, "Play", playIntent)
-            .addAction(0, "Stop", stopIntent)
+            .addAction(android.R.drawable.ic_media_play, "Play", playIntent)
+            .addAction(android.R.drawable.ic_media_pause, "Stop", stopIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setWhen(0)
             .build()
@@ -245,6 +240,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
                 cancelPlayMedia()
                 if (media.isRelevant) {
                     currentMedia = media
+                    displayForegroundNotification()
                     playMediaAsync()
                     currentMedia?.let { broadcastMedia(it) }
                 }
@@ -339,6 +335,12 @@ class MediaNotificationListenerService : NotificationListenerService(),
             playMediaAsync()
         } else if (key == SettingsManager.PLAY_MEDIA_SPEED) {
             tts.setSpeechRate(settingsManager.playMediaSpeed)
+        } else if (key == SettingsManager.PLAY_SERVICE_ENABLED) {
+            if (settingsManager.playServiceEnabled) {
+                resume()
+            } else {
+                pause()
+            }
         }
     }
 
