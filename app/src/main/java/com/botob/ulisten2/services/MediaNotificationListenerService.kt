@@ -149,6 +149,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
 
     fun pause() {
         cancelPlayMedia()
+        displayForegroundNotification() // Update notification by removing title.
 
         stopForeground(false)
     }
