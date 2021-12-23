@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">ulisten2</string>
-    <string name="action_settings">Settings</string>
     <string name="service_name">ulisten2</string>
 
     <string name="main_activity_play_media_info">Play media info</string>
@@ -13,16 +12,16 @@
     <string name="preference_play_media_interval">Every (in seconds)</string>
     <string name="preference_play_media_speed">At Speed</string>
 
-    <string name="drawer_title_section1">Settings</string>
-    <string name="drawer_title_section2">About</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_example">Example action</string>
-    <string name="title_activity_main2">MainActivity2</string>
-    <string name="title_home">Home</string>
+    <string name="title_activity_main">Main Activity</string>
+    <string name="title_home">ulisten2</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
+
+    <string name="action_settings">Settings</string>
+    <string name="action_play">Play</string>
+    <string name="action_pause">Pause</string>
+
+    <string name="notification_title_playing">You listen to…</string>
+    <string name="notification_title_paused">Paused…</string>
 </resources>

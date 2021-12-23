@@ -34,7 +34,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
         private val TAG = MediaNotificationListenerService::class.java.simpleName
 
         private const val NOTIFICATION_ACTION_PLAY = "com.botob.ulisten2.action.play"
-        private const val NOTIFICATION_ACTION_STOP = "com.botob.ulisten2.action.stop"
+        private const val NOTIFICATION_ACTION_PAUSE = "com.botob.ulisten2.action.pause"
     }
 
     private var currentMedia: Media? = null
@@ -105,7 +105,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
             NOTIFICATION_ACTION_PLAY -> {
                 settingsManager.playServiceEnabled = true
             }
-            NOTIFICATION_ACTION_STOP -> {
+            NOTIFICATION_ACTION_PAUSE -> {
                 settingsManager.playServiceEnabled = false
             }
         }
@@ -182,16 +182,35 @@ class MediaNotificationListenerService : NotificationListenerService(),
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
         val playIntent = getPendingIntent(NOTIFICATION_ACTION_PLAY)
-        val stopIntent = getPendingIntent(NOTIFICATION_ACTION_STOP)
+        val pauseIntent = getPendingIntent(NOTIFICATION_ACTION_PAUSE)
+
+        val action: NotificationCompat.Action = if (settingsManager.playServiceEnabled) {
+            NotificationCompat.Action(
+                R.drawable.ic_pause_white_24dp,
+                getString(R.string.action_pause),
+                pauseIntent
+            )
+        } else {
+            NotificationCompat.Action(
+                R.drawable.ic_play_white_24dp,
+                getString(R.string.action_play),
+                playIntent
+            )
+        }
+
+        val title = if (settingsManager.playServiceEnabled) {
+            getString(R.string.notification_title_playing)
+        } else {
+            getString(R.string.notification_title_paused)
+        }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("You listen to...")
-            .setContentText(if (currentMedia != null) currentMedia?.title.toString() else "")
+            .setContentTitle(title)
+            .setContentText(if (currentMedia != null) currentMedia?.title.toString() else null)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
-            .addAction(android.R.drawable.ic_media_play, "Play", playIntent)
-            .addAction(android.R.drawable.ic_media_pause, "Stop", stopIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .addAction(action)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setWhen(0)
             .build()
         startForeground(1001, notification)
