@@ -1,4 +1,4 @@
-package com.botob.ulisten2.preferences
+package com.botob.ulisten2.ui.settings
 
 import android.content.Context
 import android.os.Bundle

@@ -2,29 +2,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="@string/preference_play_media_category"
-        android:key="pref_play_media">
+        android:key="pref_play_media"
+        android:title="@string/preference_play_media_category">
 
-        <P
+        <com.botob.ulisten2.ui.settings.NumberPickerPreference
+            android:defaultValue="3"
             android:key="pref_play_media_delay"
             android:persistent="true"
-            android:title="@string/preference_play_media_delay"
-            android:defaultValue="3"/>
+            android:title="@string/preference_play_media_delay" />
 
-        <com.botob.ulisten2.preferences.NumberPickerPreference
+        <com.botob.ulisten2.ui.settings.NumberPickerPreference
+            android:defaultValue="30"
             android:key="pref_play_media_interval"
             android:persistent="true"
-            android:title="@string/preference_play_media_interval"
-            android:defaultValue="30"/>
+            android:title="@string/preference_play_media_interval" />
 
         <ListPreference
-            android:key="pref_play_media_speed"
-            android:persistent="true"
-            android:title="@string/preference_play_media_speed"
+            android:defaultValue="1"
             android:dialogTitle="@string/preference_play_media_speed"
             android:entries="@array/pref_playSpeed_entries"
             android:entryValues="@array/pref_playSpeed_values"
-            android:defaultValue="1"/>
+            android:key="pref_play_media_speed"
+            android:persistent="true"
+            android:title="@string/preference_play_media_speed" />
 
     </PreferenceCategory>
 

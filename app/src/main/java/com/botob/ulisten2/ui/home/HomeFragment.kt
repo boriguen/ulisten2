@@ -54,7 +54,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+            ViewModelProvider(this)[HomeViewModel::class.java]
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         homeViewModel.checked.observe(viewLifecycleOwner, {
