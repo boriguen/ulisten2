@@ -18,6 +18,7 @@ import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.text.TextUtils
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.botob.ulisten2.MainActivity
@@ -27,6 +28,7 @@ import com.botob.ulisten2.notification.Extractor
 import com.botob.ulisten2.notification.NotificationData
 import com.botob.ulisten2.preferences.SettingsManager
 import java.util.*
+
 
 class MediaNotificationListenerService : NotificationListenerService(),
     OnSharedPreferenceChangeListener {
@@ -181,21 +183,29 @@ class MediaNotificationListenerService : NotificationListenerService(),
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
-        val playIntent = getPendingIntent(NOTIFICATION_ACTION_PLAY)
-        val pauseIntent = getPendingIntent(NOTIFICATION_ACTION_PAUSE)
+        val views = RemoteViews(packageName, R.layout.status_bar)
 
-        val action: NotificationCompat.Action = if (settingsManager.playServiceEnabled) {
-            NotificationCompat.Action(
-                R.drawable.ic_pause_white_24dp,
-                getString(R.string.action_pause),
-                pauseIntent
+        if (settingsManager.playServiceEnabled) {
+            views.setImageViewResource(R.id.play_media_action, R.drawable.ic_pause_white_24dp)
+            views.setOnClickPendingIntent(
+                R.id.play_media_action,
+                getPendingIntent(NOTIFICATION_ACTION_PAUSE)
             )
+
+            views.setTextViewText(R.id.status_bar_track_name, currentMedia?.title)
+            views.setTextViewText(R.id.status_bar_artist_name, currentMedia?.artist)
         } else {
-            NotificationCompat.Action(
-                R.drawable.ic_play_white_24dp,
-                getString(R.string.action_play),
-                playIntent
+            views.setImageViewResource(R.id.play_media_action, R.drawable.ic_play_white_24dp)
+            views.setOnClickPendingIntent(
+                R.id.play_media_action,
+                getPendingIntent(NOTIFICATION_ACTION_PLAY)
             )
+
+            views.setTextViewText(
+                R.id.status_bar_track_name,
+                getString(R.string.notification_title_paused)
+            )
+            views.setTextViewText(R.id.status_bar_artist_name, null)
         }
 
         val title = if (settingsManager.playServiceEnabled) {
@@ -205,11 +215,9 @@ class MediaNotificationListenerService : NotificationListenerService(),
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(if (currentMedia != null) currentMedia?.title.toString() else null)
             .setSmallIcon(R.mipmap.ic_launcher)
+            .setContent(views)
             .setContentIntent(pendingIntent)
-            .addAction(action)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setWhen(0)
             .build()
@@ -260,12 +268,12 @@ class MediaNotificationListenerService : NotificationListenerService(),
                 cancelPlayMedia()
                 if (media.isRelevant) {
                     currentMedia = media
-                    displayForegroundNotification()
                     playMediaAsync()
                     currentMedia?.let { broadcastMedia(it) }
                 }
             }
         }
+        displayForegroundNotification()
     }
 
     private fun logNotificationData(
