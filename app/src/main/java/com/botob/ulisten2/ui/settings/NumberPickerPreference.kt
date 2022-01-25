@@ -27,10 +27,11 @@ class NumberPickerPreference(context: Context?, attrs: AttributeSet?) :
     override fun onSetInitialValue(restore: Boolean, defaultValue: Any?) {
         defaultValue?.let {
             this.defaultValue = it as Int
+            doPersistInt(this.defaultValue)
         }
     }
 
-    override fun onGetDefaultValue(a: TypedArray, index: Int): Any? {
+    override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
         return a.getInteger(index, this.defaultValue)
     }
 

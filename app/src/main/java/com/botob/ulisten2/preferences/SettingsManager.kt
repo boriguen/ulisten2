@@ -64,7 +64,7 @@ class SettingsManager(context: Context?) : OnSharedPreferenceChangeListener {
         }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        // Reset the cached value so that the newly saved value can fetched from preferences.
+        // Reset the cached value so that the newly saved value can be fetched from preferences.
         when (key) {
             PLAY_MEDIA_DELAY -> {
                 delay = -1
