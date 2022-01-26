@@ -3,25 +3,20 @@ package com.botob.ulisten2
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
-import android.os.Parcelable
 import android.provider.Settings
 import android.util.Log
 import android.widget.CompoundButton
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.botob.ulisten2.databinding.ActivityMainBinding
-import com.botob.ulisten2.media.Media
-import com.botob.ulisten2.media.MediaArrayAdapter
+import com.botob.ulisten2.media.MediaAdapter
 import com.botob.ulisten2.preferences.SettingsManager
 import com.botob.ulisten2.services.MediaNotificationListenerService
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.*
 
 class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
@@ -53,11 +48,6 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     }
 
     private lateinit var binding: ActivityMainBinding
-
-    /**
-     * The broadcast receiver handling media objects.
-     */
-    private lateinit var broadcastReceiver: MediaBroadcastReceiver
 
     /**
      * The notification listener service to interact with.
@@ -92,17 +82,7 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
     /**
      * The adapter to control the media.
      */
-    private lateinit var mediaArrayAdapter: MediaArrayAdapter
-
-    /**
-     * The service state switch component.
-     */
-    private lateinit var serviceStateSwitch: SwitchMaterial
-
-    /**
-     * The list view showing the played media.
-     */
-    private lateinit var playedMediaListView: ListView
+    private lateinit var mediaArrayAdapter: MediaAdapter
 
     private val isListenerEnabled: Boolean
         get() = NotificationManagerCompat.getEnabledListenerPackages(applicationContext)
@@ -132,38 +112,9 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
 
         // Try to bind the service.
         tryBind()
-
-        // Initialize service state switch component.
-        serviceStateSwitch = findViewById(R.id.switch_service_state)
-        serviceStateSwitch.isChecked = settingsManager.playServiceEnabled
-        serviceStateSwitch.setOnCheckedChangeListener(this)
-
-        // Initialize the media list.
-        mediaArrayAdapter = MediaArrayAdapter(this, ArrayList())
-        playedMediaListView = findViewById(R.id.list_played_media)
-        playedMediaListView.adapter = mediaArrayAdapter
-
-        // Setup the broadcast receiver.
-        broadcastReceiver = MediaBroadcastReceiver()
-        registerMediaBroadcastReceiver()
-    }
-
-    /**
-     * Registers an action to BroadCastReceiver.
-     */
-    private fun registerMediaBroadcastReceiver() {
-        try {
-            val intentFilter = IntentFilter()
-            intentFilter.addAction(ACTION_BROADCAST_MEDIA)
-            LocalBroadcastManager.getInstance(this)
-                .registerReceiver(broadcastReceiver, intentFilter)
-        } catch (e: Exception) {
-            Log.e(TAG, e.toString())
-        }
     }
 
     override fun onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
         tryUnbind()
         super.onDestroy()
     }
@@ -198,22 +149,6 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
         if (requestCode == REQUEST_NOTIFICATION_ACCESS) {
             // Set the setting here as state switch listener is not triggered.
             settingsManager.playServiceEnabled = isListenerEnabled
-        }
-    }
-
-    /**
-     * MediaBroadCastReceiver handles the media broadcasts.
-     */
-    internal inner class MediaBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            try {
-                mediaArrayAdapter.insert(
-                    intent.getParcelableExtra<Parcelable>(EXTRA_BROADCAST_MEDIA) as Media?,
-                    0
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, e.toString())
-            }
         }
     }
 }
