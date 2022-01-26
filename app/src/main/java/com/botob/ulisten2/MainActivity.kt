@@ -13,7 +13,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.botob.ulisten2.databinding.ActivityMainBinding
-import com.botob.ulisten2.media.MediaAdapter
 import com.botob.ulisten2.preferences.SettingsManager
 import com.botob.ulisten2.services.MediaNotificationListenerService
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -35,11 +34,6 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
          * The broadcast media extra key.
          */
         const val EXTRA_BROADCAST_MEDIA = "com.botob.ulisten2.extra.media"
-
-        /**
-         * The code used when requesting settings.
-         */
-        private const val REQUEST_SETTINGS = 0
 
         /**
          * The code used when requesting notification access.
@@ -78,11 +72,6 @@ class MainActivity : AppCompatActivity(), CompoundButton.OnCheckedChangeListener
      * The settings manager instance to get and set preferences.
      */
     private lateinit var settingsManager: SettingsManager
-
-    /**
-     * The adapter to control the media.
-     */
-    private lateinit var mediaArrayAdapter: MediaAdapter
 
     private val isListenerEnabled: Boolean
         get() = NotificationManagerCompat.getEnabledListenerPackages(applicationContext)
