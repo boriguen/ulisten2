@@ -195,7 +195,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val views = RemoteViews(packageName, R.layout.status_bar)
+        val views = RemoteViews(packageName, R.layout.notification_media)
 
         if (settingsManager.playServiceEnabled) {
             views.setImageViewResource(R.id.play_media_action, R.drawable.ic_pause_white_24dp)
@@ -221,7 +221,10 @@ class MediaNotificationListenerService : NotificationListenerService(),
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle(getString(R.string.app_name))
+            .setTicker(getString(R.string.app_name))
             .setSmallIcon(R.mipmap.ic_launcher)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContent(views)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_MAX)

@@ -13,7 +13,7 @@ class MediaAdapter(private val medias: List<Media>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.list_row_media, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.media_item, parent, false)
         return Holder(view)
     }
 

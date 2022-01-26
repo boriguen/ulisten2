@@ -5,6 +5,13 @@
 
     <dimen name="notification_subtext_size">12sp</dimen>
 
+    <!-- Margin sizes -->
+
+    <dimen name="margin_small">4dp</dimen>
+    <dimen name="margin_medium">8dp</dimen>
+    <dimen name="margin_large">16dp</dimen>
+    <dimen name="margin_extra_large">24dp</dimen>
+
     <!-- Text sizes -->
 
     <dimen name="text_size_extra_micro">10sp</dimen>
