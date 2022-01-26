@@ -145,6 +145,11 @@ class MediaNotificationListenerService : NotificationListenerService(),
         return true
     }
 
+    fun reset() {
+        pause()
+        resume()
+    }
+
     fun resume() {
         processActiveStatusBarNotifications()
     }
@@ -206,12 +211,6 @@ class MediaNotificationListenerService : NotificationListenerService(),
                 getString(R.string.notification_title_paused)
             )
             views.setTextViewText(R.id.status_bar_artist_name, null)
-        }
-
-        val title = if (settingsManager.playServiceEnabled) {
-            getString(R.string.notification_title_playing)
-        } else {
-            getString(R.string.notification_title_paused)
         }
 
         val notification = NotificationCompat.Builder(this, channelId)
@@ -359,8 +358,7 @@ class MediaNotificationListenerService : NotificationListenerService(),
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == SettingsManager.PLAY_MEDIA_DELAY || key == SettingsManager.PLAY_MEDIA_INTERVAL) {
-            cancelPlayMedia()
-            playMediaAsync()
+            reset()
         } else if (key == SettingsManager.PLAY_MEDIA_SPEED) {
             tts.setSpeechRate(settingsManager.playMediaSpeed)
         } else if (key == SettingsManager.PLAY_SERVICE_ENABLED) {
