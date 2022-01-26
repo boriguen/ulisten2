@@ -6,29 +6,48 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <LinearLayout
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_service_state"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:text="@string/main_activity_media_alerts"
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintBottom_toTopOf="@id/divider_home"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_weight="1" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_service_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:checked="false"
-            android:enabled="true"
-            android:text="@string/main_activity_play_media_info" />
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/text_past_media"
+        app:layout_constraintTop_toBottomOf="@id/switch_service_state"
+        app:layout_constraintVertical_weight="0.5"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_played_media"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-    </LinearLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_past_media"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:text="@string/past_media"
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintBottom_toTopOf="@id/list_played_media"
+        app:layout_constraintTop_toBottomOf="@id/divider_home"
+        app:layout_constraintVertical_weight="0.5" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_played_media"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_past_media"
+        app:layout_constraintVertical_weight="8" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

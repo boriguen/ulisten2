@@ -3,7 +3,7 @@
 
     <PreferenceCategory
         android:key="pref_play_media"
-        android:title="@string/preference_play_media_category">
+        android:title="@string/preference_category_media_alerts">
 
         <com.botob.ulisten2.ui.settings.NumberPickerPreference
             android:defaultValue="3"
