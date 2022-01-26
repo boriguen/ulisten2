@@ -185,8 +185,15 @@ class MediaNotificationListenerService : NotificationListenerService(),
     private fun displayForegroundNotification() {
         val channelId = createNotificationChannel()
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val notificationIntent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val views = RemoteViews(packageName, R.layout.status_bar)
 
