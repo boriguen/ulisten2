@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.botob.ulisten2.R
+import com.botob.ulisten2.preferences.SettingsManager
 
 /**
  * Created by guenebau on 10/4/15.
@@ -15,6 +16,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
+
+        findPreference<Preference>(SettingsManager.PLAY_MEDIA_SPEED)?.summary =
+            SettingsManager(requireContext()).playMediaSpeed.toString()
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {

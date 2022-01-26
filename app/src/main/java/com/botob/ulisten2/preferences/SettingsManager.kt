@@ -2,13 +2,12 @@ package com.botob.ulisten2.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 /**
  * Created by guenebau on 10/4/15.
  */
-class SettingsManager(context: Context?) : OnSharedPreferenceChangeListener {
+class SettingsManager(context: Context?) : SharedPreferences.OnSharedPreferenceChangeListener {
     companion object {
         const val PLAY_MEDIA_DELAY = "pref_play_media_delay"
         const val PLAY_MEDIA_INTERVAL = "pref_play_media_interval"
@@ -21,7 +20,8 @@ class SettingsManager(context: Context?) : OnSharedPreferenceChangeListener {
         const val PLAY_SERVICE_ENABLED_DEFAULT = false
     }
 
-    val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    val sharedPreferences: SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(context)
 
     private var delay = -1
 
@@ -41,7 +41,8 @@ class SettingsManager(context: Context?) : OnSharedPreferenceChangeListener {
     val playMediaIntervalInMilliseconds: Int
         get() {
             if (interval < 0) {
-                interval = sharedPreferences.getInt(PLAY_MEDIA_INTERVAL, PLAY_MEDIA_INTERVAL_DEFAULT_IN_S)
+                interval =
+                    sharedPreferences.getInt(PLAY_MEDIA_INTERVAL, PLAY_MEDIA_INTERVAL_DEFAULT_IN_S)
                 interval *= 1000
             }
             return interval
@@ -50,7 +51,8 @@ class SettingsManager(context: Context?) : OnSharedPreferenceChangeListener {
     val playMediaSpeed: Float
         get() {
             if (speed < 0) {
-                speed = sharedPreferences.getString(PLAY_MEDIA_SPEED, PLAY_MEDIA_SPEED_DEFAULT)!!.toFloat()
+                speed = sharedPreferences.getString(PLAY_MEDIA_SPEED, PLAY_MEDIA_SPEED_DEFAULT)!!
+                    .toFloat()
             }
             return speed
         }

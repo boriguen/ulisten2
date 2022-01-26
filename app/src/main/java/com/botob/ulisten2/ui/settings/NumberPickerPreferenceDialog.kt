@@ -11,7 +11,18 @@ import androidx.preference.PreferenceDialogFragmentCompat
  * Inspired from https://newbedev.com/android-preferenceactivity-dialog-with-number-picker.
  */
 class NumberPickerPreferenceDialog : PreferenceDialogFragmentCompat() {
-    lateinit var numberPicker: NumberPicker
+    companion object {
+        fun newInstance(key: String): NumberPickerPreferenceDialog {
+            val fragment = NumberPickerPreferenceDialog()
+            val bundle = Bundle(1)
+            bundle.putString(ARG_KEY, key)
+            fragment.arguments = bundle
+
+            return fragment
+        }
+    }
+
+    private lateinit var numberPicker: NumberPicker
 
     override fun onCreateDialogView(context: Context?): View {
         numberPicker = NumberPicker(context)
@@ -35,17 +46,6 @@ class NumberPickerPreferenceDialog : PreferenceDialogFragmentCompat() {
                 (preference as NumberPickerPreference).doPersistInt(newValue)
                 preference.summary
             }
-        }
-    }
-
-    companion object {
-        fun newInstance(key: String): NumberPickerPreferenceDialog {
-            val fragment = NumberPickerPreferenceDialog()
-            val bundle = Bundle(1)
-            bundle.putString(ARG_KEY, key)
-            fragment.arguments = bundle
-
-            return fragment
         }
     }
 }
